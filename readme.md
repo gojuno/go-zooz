@@ -31,7 +31,7 @@ client := zooz.New(
 )
 
 // Create new customer
-customer, customerErr := c.Customer().New(
+customer, customerErr := client.Customer().New(
 	context.Background(),
 	"customer_idempotency_key",
 	&zooz.CustomerParams{
@@ -42,7 +42,7 @@ customer, customerErr := c.Customer().New(
 )
 
 // Create new payment method
-paymentMethod, paymentMethodErr := c.PaymentMethod().New(
+paymentMethod, paymentMethodErr := client.PaymentMethod().New(
 	context.Background(),
 	"payment_method_idempotency_key",
 	customer.ID,
@@ -50,7 +50,7 @@ paymentMethod, paymentMethodErr := c.PaymentMethod().New(
 )
 
 // Delete customer
-deleteErr := c.Customer().Delete(context.Background(), customer.ID)
+deleteCustomerErr := client.Customer().Delete(context.Background(), customer.ID)
 ```
 
 ## Custom HTTP client
