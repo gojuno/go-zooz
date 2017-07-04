@@ -1,8 +1,8 @@
-# Go Zooz API client
+# Zooz API client
 
 [![Build Status](https://travis-ci.org/gojuno/go-zooz.svg?branch=master)](https://travis-ci.org/gojuno/go-zooz)
 
-This repo contains Zooz API client written on Go.
+This repo contains Zooz API client written in Go.
 
 Zooz API documentation: https://developers.paymentsos.com/docs/api
 
