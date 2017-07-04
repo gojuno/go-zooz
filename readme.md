@@ -1,4 +1,4 @@
-# Zooz API client [![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/gojuno/go-zooz) [![Build Status](https://travis-ci.org/gojuno/go-zooz.svg?branch=master)](https://travis-ci.org/gojuno/go-zooz)
+# Zooz API client [![GoDoc](https://godoc.org/github.com/gojuno/go-zooz?status.svg)](http://godoc.org/github.com/gojuno/go-zooz) [![Build Status](https://travis-ci.org/gojuno/go-zooz.svg?branch=master)](https://travis-ci.org/gojuno/go-zooz)
 
 This repo contains Zooz API client written in Go.
 
