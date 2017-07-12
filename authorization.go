@@ -32,7 +32,7 @@ type Authorization struct {
 // AuthorizationParams is a set of params for creating entity.
 type AuthorizationParams struct {
 	PaymentMethodToken     string                 `json:"payment_method_token"`
-	CreditCardCvv          string                 `json:"credit_card_cvv"`
+	CreditCardCvv          string                 `json:"credit_card_cvv,omitempty"`
 	MerchantSiteUrl        string                 `json:"merchant_site_url"`
 	ReconciliationID       string                 `json:"reconciliation_id"`
 	ThreeDSecureAttributes ThreeDSecureAttributes `json:"three_d_secure_attributes"`
