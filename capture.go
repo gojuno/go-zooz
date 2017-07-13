@@ -24,8 +24,8 @@ type Capture struct {
 
 // CaptureParams is a set of params for creating entity.
 type CaptureParams struct {
-	ReconciliationID string  `json:"reconciliation_id"`
-	Amount           float64 `json:"amount"`
+	ReconciliationID string  `json:"reconciliation_id,omitempty"`
+	Amount           float64 `json:"amount,omitempty"`
 }
 
 // New creates new Capture entity.
