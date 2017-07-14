@@ -17,11 +17,11 @@ type PaymentClient struct {
 type Payment struct {
 	PaymentParams
 
-	ID                  string          `json:"id"`
-	Created             json.Number     `json:"created"`
-	Modified            json.Number     `json:"modified"`
-	Status              paymentStatus   `json:"status"`
-	PossibleNextActions []PaymentAction `json:"possible_next_actions"`
+	ID                  string              `json:"id"`
+	Created             json.Number         `json:"created"`
+	Modified            json.Number         `json:"modified"`
+	Status              PaymentStatus       `json:"status"`
+	PossibleNextActions []PaymentNextAction `json:"possible_next_actions"`
 
 	// Expansions
 	PaymentMethod    *PaymentMethod           `json:"payment_method"`
@@ -58,9 +58,9 @@ type PaymentOrderLineItem struct {
 	UnitPrice float64 `json:"unit_price,omitempty"`
 }
 
-// PaymentAction represents action which may be performed on Payment entity.
-type PaymentAction struct {
-	Action paymentAction `json:"action"`
+// PaymentNextAction represents action which may be performed on Payment entity.
+type PaymentNextAction struct {
+	Action PaymentAction `json:"action"`
 	Href   string        `json:"href"`
 }
 
@@ -74,41 +74,48 @@ type PaymentRelatedResources struct {
 	Refunds        []Refund        `json:"refunds"`
 }
 
-type paymentStatus string
+// PaymentStatus is a type of payment status
+type PaymentStatus string
 
-type paymentExpand string
+// PaymentExpand is a type of "expand" param value, used while requesting payment
+type PaymentExpand string
 
-type paymentAction string
+// PaymentAction is a type of action performed on payment
+type PaymentAction string
 
+const paymentsPath = "payments"
+
+// List of possible payment status values.
 const (
-	paymentsPath = "payments"
+	PaymentStatusInitialized PaymentStatus = "Initialized"
+	PaymentStatusPending     PaymentStatus = "Pending"
+	PaymentStatusAuthorized  PaymentStatus = "Authorized"
+	PaymentStatusCaptured    PaymentStatus = "Captured"
+	PaymentStatusRefunded    PaymentStatus = "Refunded"
+	PaymentStatusVoided      PaymentStatus = "Voided"
+)
 
-	// List of possible payment status values.
-	PaymentStatusInitialized paymentStatus = "Initialized"
-	PaymentStatusPending     paymentStatus = "Pending"
-	PaymentStatusAuthorized  paymentStatus = "Authorized"
-	PaymentStatusCaptured    paymentStatus = "Captured"
-	PaymentStatusRefunded    paymentStatus = "Refunded"
-	PaymentStatusVoided      paymentStatus = "Voided"
+// List of possible payment expansion values.
+const (
+	PaymentExpandAuthorizations PaymentExpand = "authorizations"
+	PaymentExpandRedirections   PaymentExpand = "redirections"
+	PaymentExpandCaptures       PaymentExpand = "captures"
+	PaymentExpandRefunds        PaymentExpand = "refunds"
+	PaymentExpandVoids          PaymentExpand = "voids"
+	PaymentExpandCredits        PaymentExpand = "credits"
+	PaymentExpandCustomer       PaymentExpand = "customer"
+	PaymentExpandPaymentMethod  PaymentExpand = "payment_method"
+	PaymentExpandAll            PaymentExpand = "all"
+)
 
-	// List of possible payment expansion values.
-	PaymentExpandAuthorizations paymentExpand = "authorizations"
-	PaymentExpandRedirections   paymentExpand = "redirections"
-	PaymentExpandCaptures       paymentExpand = "captures"
-	PaymentExpandRefunds        paymentExpand = "refunds"
-	PaymentExpandVoids          paymentExpand = "voids"
-	PaymentExpandCredits        paymentExpand = "credits"
-	PaymentExpandCustomer       paymentExpand = "customer"
-	PaymentExpandPaymentMethod  paymentExpand = "payment_method"
-	PaymentExpandAll            paymentExpand = "all"
-
-	// List of possible payment action values.
-	PaymentActionAuthorize     paymentAction = "Authorize"
-	PaymentActionCharge        paymentAction = "Charge"
-	PaymentActionCapture       paymentAction = "Capture"
-	PaymentActionRefund        paymentAction = "Refund"
-	PaymentActionVoid          paymentAction = "Void"
-	PaymentActionUpdatePayment paymentAction = "Update Payment"
+// List of possible payment action values.
+const (
+	PaymentActionAuthorize     PaymentAction = "Authorize"
+	PaymentActionCharge        PaymentAction = "Charge"
+	PaymentActionCapture       PaymentAction = "Capture"
+	PaymentActionRefund        PaymentAction = "Refund"
+	PaymentActionVoid          PaymentAction = "Void"
+	PaymentActionUpdatePayment PaymentAction = "Update Payment"
 )
 
 // New creates new Payment entity.
@@ -122,7 +129,7 @@ func (c *PaymentClient) New(ctx context.Context, idempotencyKey string, params *
 
 // Get returns Payment entity with optional expansions. You may specify any number of expansion or
 // use zooz.PaymentExpandAll for expand payments with all expansions.
-func (c *PaymentClient) Get(ctx context.Context, id string, expands ...paymentExpand) (*Payment, error) {
+func (c *PaymentClient) Get(ctx context.Context, id string, expands ...PaymentExpand) (*Payment, error) {
 	payment := &Payment{}
 	if err := c.Caller.Call(ctx, "GET", c.paymentPath(id, expands...), nil, nil, payment); err != nil {
 		return nil, err
@@ -142,7 +149,7 @@ func (c *PaymentClient) Update(ctx context.Context, id string, params *PaymentPa
 	return payment, nil
 }
 
-func (c *PaymentClient) paymentPath(id string, expands ...paymentExpand) string {
+func (c *PaymentClient) paymentPath(id string, expands ...PaymentExpand) string {
 	values := url.Values{}
 	for _, expand := range expands {
 		values.Add("expand", string(expand))

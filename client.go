@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Call makes HTTP call with given options and decode response into given struct.
+// Caller makes HTTP call with given options and decode response into given struct.
 // Client implements this interface and pass itself to entity clients. You may create entity clients with own caller for
 // test purposes.
 type Caller interface {
@@ -42,18 +42,19 @@ type env string
 
 const (
 	apiVersion = "1.0.0"
-	apiUrl     = "https://api.paymentsos.com/"
+	apiURL     = "https://api.paymentsos.com/"
 
-	// Possible values for environment request header
+	// EnvTest is a value for test environment header
 	EnvTest env = "test"
+	// EnvLive is a value for live environment header
 	EnvLive env = "live"
 
-	headerApiVersion      = "api-version"
+	headerAPIVersion      = "api-version"
 	headerEnv             = "x-payments-os-env"
 	headerIdempotencyKey  = "idempotency_key"
 	headerAppID           = "app_id"
 	headerPrivateKey      = "private_key"
-	headerClientIpAddress = "x-client-ip-address"
+	headerClientIPAddress = "x-client-ip-address"
 	headerClientUserAgent = "x-client-user-agent"
 	headerRequestID       = "X-Zooz-Request-Id"
 )
@@ -72,8 +73,8 @@ func New(options ...Option) *Client {
 	return c
 }
 
-// OptHttpClient returns option with given HTTP client.
-func OptHttpClient(httpClient httpClient) Option {
+// OptHTTPClient returns option with given HTTP client.
+func OptHTTPClient(httpClient httpClient) Option {
 	return func(c *Client) {
 		c.httpClient = httpClient
 	}
@@ -102,7 +103,7 @@ func OptEnv(env env) Option {
 
 // Call does HTTP request with given params using set HTTP client. Response will be decoded into respObj.
 // Error may be returned if something went wrong. If API return error as response, then Call returns error of type zooz.Error.
-func (c *Client) Call(ctx context.Context, method, path string, headers map[string]string, reqObj interface{}, respObj interface{}) error {
+func (c *Client) Call(ctx context.Context, method, path string, headers map[string]string, reqObj interface{}, respObj interface{}) (callErr error) {
 	var reqBody []byte
 	var err error
 
@@ -113,7 +114,7 @@ func (c *Client) Call(ctx context.Context, method, path string, headers map[stri
 		}
 	}
 
-	req, err := http.NewRequest(method, apiUrl+path, bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(method, apiURL+path, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return errors.Wrap(err, "failed to create HTTP request")
 	}
@@ -127,7 +128,7 @@ func (c *Client) Call(ctx context.Context, method, path string, headers map[stri
 
 	// Set common client headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(headerApiVersion, apiVersion)
+	req.Header.Set(headerAPIVersion, apiVersion)
 	req.Header.Set(headerEnv, string(c.env))
 	req.Header.Set(headerAppID, c.appID)
 	req.Header.Set(headerPrivateKey, c.privateKey)
@@ -136,7 +137,11 @@ func (c *Client) Call(ctx context.Context, method, path string, headers map[stri
 	if err != nil {
 		return errors.Wrap(err, "failed to do request")
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			callErr = err
+		}
+	}()
 
 	// Handle 4xx and 5xx statuses
 	if resp.StatusCode >= http.StatusBadRequest {
@@ -144,14 +149,14 @@ func (c *Client) Call(ctx context.Context, method, path string, headers map[stri
 		if err != nil {
 			return errors.Wrap(err, "failed to read response body")
 		}
-		var apiError ApiError
+		var apiError APIError
 		if err := json.Unmarshal(respBody, &apiError); err != nil {
 			return errors.Wrapf(err, "failed to unmarshal response error with status %d: %s", resp.StatusCode, string(respBody))
 		}
 		return &Error{
 			StatusCode: resp.StatusCode,
 			RequestID:  resp.Header.Get(headerRequestID),
-			ApiError:   apiError,
+			APIError:   apiError,
 		}
 	}
 

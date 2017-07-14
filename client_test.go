@@ -22,6 +22,31 @@ func (c *httpClientMock) Do(r *http.Request) (*http.Response, error) {
 	return c.do(r)
 }
 
+func TestNew(t *testing.T) {
+	c := New(
+		OptAppID("app_id"),
+		OptEnv(EnvLive),
+		OptPrivateKey("private_key"),
+		OptHTTPClient(&httpClientMock{}),
+	)
+
+	if c == nil {
+		t.Errorf("Client is nil")
+	}
+	if c.appID != "app_id" {
+		t.Errorf("Invalid appID: %s", c.appID)
+	}
+	if c.env != EnvLive {
+		t.Errorf("Invalid env: %s", c.env)
+	}
+	if c.privateKey != "private_key" {
+		t.Errorf("Invalid privateKey: %s", c.privateKey)
+	}
+	if _, ok := c.httpClient.(*httpClientMock); !ok {
+		t.Errorf("Invalid httpClient: %T", c.httpClient)
+	}
+}
+
 func TestCall_WithApiResponse(t *testing.T) {
 	httpClientMock := &httpClientMock{
 		do: func(r *http.Request) (*http.Response, error) {
@@ -55,7 +80,7 @@ func TestCall_WithApiResponse(t *testing.T) {
 		},
 	}
 
-	request := request{
+	req := request{
 		Field: "request_value",
 	}
 
@@ -77,7 +102,7 @@ func TestCall_WithApiResponse(t *testing.T) {
 		map[string]string{
 			"test-header": "test-header-value",
 		},
-		&request,
+		&req,
 		&response,
 	)
 
@@ -100,7 +125,7 @@ func TestCall_WithApiError(t *testing.T) {
 		},
 	}
 
-	request := request{
+	req := request{
 		Field: "request_value",
 	}
 
@@ -113,7 +138,7 @@ func TestCall_WithApiError(t *testing.T) {
 		map[string]string{
 			"test-header": "test-header-value",
 		},
-		&request,
+		&req,
 		nil,
 	)
 
@@ -124,8 +149,8 @@ func TestCall_WithApiError(t *testing.T) {
 		if zoozErr.StatusCode != http.StatusBadRequest {
 			t.Errorf("Invalid error status code: %d", zoozErr.StatusCode)
 		}
-		if zoozErr.ApiError.Category != "category_test" {
-			t.Errorf("Invalid API error category: %d", zoozErr.ApiError.Category)
+		if zoozErr.APIError.Category != "category_test" {
+			t.Errorf("Invalid API error category: %s", zoozErr.APIError.Category)
 		}
 	} else {
 		t.Errorf("Call return invalid error type: %T", err)
@@ -139,7 +164,7 @@ func TestCall_WithTransportError(t *testing.T) {
 		},
 	}
 
-	request := request{
+	req := request{
 		Field: "request_value",
 	}
 
@@ -152,7 +177,7 @@ func TestCall_WithTransportError(t *testing.T) {
 		map[string]string{
 			"test-header": "test-header-value",
 		},
-		&request,
+		&req,
 		nil,
 	)
 

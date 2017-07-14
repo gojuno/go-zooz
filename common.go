@@ -10,7 +10,7 @@ type Result struct {
 
 // ClientInfo represents optional request params for some methods.
 type ClientInfo struct {
-	IpAddress string
+	IPAddress string
 	UserAgent string
 }
 

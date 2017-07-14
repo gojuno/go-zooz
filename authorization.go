@@ -25,7 +25,7 @@ type Authorization struct {
 	ProviderData               ProviderData            `json:"provider_data"`
 	ProviderSpecificData       map[string]interface{}  `json:"provider_specific_data"`
 	OriginatingPurchaseCountry string                  `json:"originating_purchase_country"`
-	IpAddress                  string                  `json:"ip_address"`
+	IPAddress                  string                  `json:"ip_address"`
 	Redirection                *Redirection            `json:"redirection"`
 }
 
@@ -33,7 +33,7 @@ type Authorization struct {
 type AuthorizationParams struct {
 	PaymentMethodToken     string                  `json:"payment_method_token"`
 	CreditCardCvv          string                  `json:"credit_card_cvv,omitempty"`
-	MerchantSiteUrl        string                  `json:"merchant_site_url,omitempty"`
+	MerchantSiteURL        string                  `json:"merchant_site_url,omitempty"`
 	ReconciliationID       string                  `json:"reconciliation_id,omitempty"`
 	ThreeDSecureAttributes *ThreeDSecureAttributes `json:"three_d_secure_attributes,omitempty"`
 	Installments           *Installments           `json:"installments,omitempty"`
@@ -47,7 +47,7 @@ func (c *AuthorizationClient) New(ctx context.Context, idempotencyKey string, pa
 	headers := map[string]string{headerIdempotencyKey: idempotencyKey}
 
 	if clientInfo != nil {
-		headers[headerClientIpAddress] = clientInfo.IpAddress
+		headers[headerClientIPAddress] = clientInfo.IPAddress
 		headers[headerClientUserAgent] = clientInfo.UserAgent
 	}
 

@@ -16,8 +16,8 @@ type RedirectionClient struct {
 type Redirection struct {
 	ID              string      `json:"id"`
 	Created         json.Number `json:"created"`
-	MerchantSiteUrl string      `json:"merchant_site_url"`
-	Url             string      `json:"url"`
+	MerchantSiteURL string      `json:"merchant_site_url"`
+	URL             string      `json:"url"`
 }
 
 // Get creates new Redirection entity.
