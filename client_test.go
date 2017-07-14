@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"testing"
+	"encoding/json"
+	"reflect"
 
 	"github.com/pkg/errors"
 )
@@ -18,8 +20,55 @@ type request struct {
 	Field string `json:"field"`
 }
 
+type callerMock struct {
+	t *testing.T
+	expectedMethod string
+	expectedPath string
+	expectedHeaders map[string]string
+	expectedReqObj interface{}
+	returnRespObj interface{}
+	returnError error
+}
+
 func (c *httpClientMock) Do(r *http.Request) (*http.Response, error) {
 	return c.do(r)
+}
+
+func (c *callerMock) Call(ctx context.Context, method, path string, headers map[string]string, reqObj interface{}, respObj interface{}) error {
+	if method != c.expectedMethod {
+		c.t.Errorf("Invalid method: %s", method)
+	}
+	if path != c.expectedPath {
+		c.t.Errorf("Invalid path: %s", path)
+	}
+	for k, v := range headers {
+		if v != c.expectedHeaders[k] {
+			c.t.Errorf("Invalid header %s: %s", k, v)
+		}
+	}
+	if len(headers) != len(c.expectedHeaders) {
+		c.t.Errorf("Invalid headers count: %d", len(headers))
+	}
+
+	reqBody, err := json.Marshal(reqObj)
+	if err != nil {
+		c.t.Fatalf("Marshal error: %s", err)
+	}
+
+	expectedReqBody, err := json.Marshal(c.expectedReqObj)
+	if err != nil {
+		c.t.Fatalf("Marshal error: %s", err)
+	}
+
+	if string(reqBody) != string(expectedReqBody) {
+		c.t.Errorf("Invalid request body: %s", string(reqBody))
+	}
+
+	if c.returnRespObj != nil {
+		reflect.ValueOf(respObj).Elem().Set(reflect.ValueOf(c.returnRespObj).Elem())
+	}
+
+	return c.returnError
 }
 
 func TestNew(t *testing.T) {
@@ -188,3 +237,4 @@ func TestCall_WithTransportError(t *testing.T) {
 		t.Errorf("Invalid error cause: %v", errors.Cause(err))
 	}
 }
+

@@ -1,11 +1,124 @@
 package zooz
 
-import "testing"
+import (
+	"testing"
+	"context"
+)
 
-func TestCustomerClient_customerPath(t *testing.T) {
-	c := &CustomerClient{}
-	p := c.customerPath("customer_id")
-	if p != "customers/customer_id" {
-		t.Errorf("Invalid customer path: %s", p)
+func TestCustomerClient_New(t *testing.T) {
+	caller := &callerMock{
+		t: t,
+		expectedMethod: "POST",
+		expectedPath: "customers",
+		expectedHeaders: map[string]string{
+			headerIdempotencyKey: "idempotency_key",
+		},
+		expectedReqObj: &CustomerParams{
+			CustomerReference: "reference",
+		},
+		returnRespObj: &Customer{
+			ID: "id",
+		},
+	}
+
+	c := &CustomerClient{Caller: caller}
+
+	customer, err := c.New(
+		context.Background(),
+		"idempotency_key",
+		&CustomerParams{
+			CustomerReference: "reference",
+		},
+	)
+
+	if err != nil {
+		t.Error("Error must be nil")
+	}
+	if customer == nil {
+		t.Errorf("Customer is nil")
+	}
+	if customer.ID != "id" {
+		t.Errorf("Customer is not as expected: %+v", customer)
+	}
+}
+
+func TestCustomerClient_Get(t *testing.T) {
+	caller := &callerMock{
+		t: t,
+		expectedMethod: "GET",
+		expectedPath: "customers/id",
+		returnRespObj: &Customer{
+			ID: "id",
+		},
+	}
+
+	c := &CustomerClient{Caller: caller}
+
+	customer, err := c.Get(
+		context.Background(),
+		"id",
+	)
+
+	if err != nil {
+		t.Error("Error must be nil")
+	}
+	if customer == nil {
+		t.Errorf("Customer is nil")
+	}
+	if customer.ID != "id" {
+		t.Errorf("Customer is not as expected: %+v", customer)
+	}
+}
+
+func TestCustomerClient_Update(t *testing.T) {
+	caller := &callerMock{
+		t: t,
+		expectedMethod: "PUT",
+		expectedPath: "customers/id",
+		expectedReqObj: &CustomerParams{
+			CustomerReference: "reference",
+		},
+		returnRespObj: &Customer{
+			ID: "id",
+		},
+	}
+
+	c := &CustomerClient{Caller: caller}
+
+	customer, err := c.Update(
+		context.Background(),
+		"id",
+		&CustomerParams{
+			CustomerReference: "reference",
+		},
+	)
+
+	if err != nil {
+		t.Error("Error must be nil")
+	}
+	if customer == nil {
+		t.Errorf("Customer is nil")
+	}
+	if customer.ID != "id" {
+		t.Errorf("Customer is not as expected: %+v", customer)
+	}
+}
+
+func TestCustomerClient_Delete(t *testing.T) {
+	caller := &callerMock{
+		t: t,
+		expectedMethod: "DELETE",
+		expectedPath: "customers/id",
+	}
+
+	c := &CustomerClient{Caller: caller}
+
+	err := c.Delete(
+		context.Background(),
+		"id",
+	)
+
+	if err != nil {
+		t.Error("Error must be nil")
 	}
 }
