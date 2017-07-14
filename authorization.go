@@ -14,30 +14,30 @@ type AuthorizationClient struct {
 
 // Authorization is a model of entity.
 type Authorization struct {
-	ID                         string                 `json:"id"`
-	Result                     Result                 `json:"result"`
-	Amount                     float64                `json:"amount"`
-	Created                    json.Number            `json:"created"`
-	ReconciliationID           string                 `json:"reconciliation_id"`
-	PaymentMethod              PaymentMethod          `json:"payment_method"`
-	ThreeDSecureAttributes     ThreeDSecureAttributes `json:"three_d_secure_attributes"`
-	Installments               *Installments          `json:"installments"`
-	ProviderData               ProviderData           `json:"provider_data"`
-	ProviderSpecificData       map[string]interface{} `json:"provider_specific_data"`
-	OriginatingPurchaseCountry string                 `json:"originating_purchase_country"`
-	IpAddress                  string                 `json:"ip_address"`
-	Redirection                *Redirection           `json:"redirection"`
+	ID                         string                  `json:"id"`
+	Result                     Result                  `json:"result"`
+	Amount                     float64                 `json:"amount"`
+	Created                    json.Number             `json:"created"`
+	ReconciliationID           string                  `json:"reconciliation_id"`
+	PaymentMethod              PaymentMethod           `json:"payment_method"`
+	ThreeDSecureAttributes     *ThreeDSecureAttributes `json:"three_d_secure_attributes"`
+	Installments               *Installments           `json:"installments"`
+	ProviderData               ProviderData            `json:"provider_data"`
+	ProviderSpecificData       map[string]interface{}  `json:"provider_specific_data"`
+	OriginatingPurchaseCountry string                  `json:"originating_purchase_country"`
+	IpAddress                  string                  `json:"ip_address"`
+	Redirection                *Redirection            `json:"redirection"`
 }
 
 // AuthorizationParams is a set of params for creating entity.
 type AuthorizationParams struct {
-	PaymentMethodToken     string                 `json:"payment_method_token"`
-	CreditCardCvv          string                 `json:"credit_card_cvv,omitempty"`
-	MerchantSiteUrl        string                 `json:"merchant_site_url"`
-	ReconciliationID       string                 `json:"reconciliation_id"`
-	ThreeDSecureAttributes ThreeDSecureAttributes `json:"three_d_secure_attributes"`
-	Installments           *Installments          `json:"installments"`
-	ProviderSpecificData   map[string]interface{} `json:"provider_specific_data"`
+	PaymentMethodToken     string                  `json:"payment_method_token"`
+	CreditCardCvv          string                  `json:"credit_card_cvv,omitempty"`
+	MerchantSiteUrl        string                  `json:"merchant_site_url,omitempty"`
+	ReconciliationID       string                  `json:"reconciliation_id,omitempty"`
+	ThreeDSecureAttributes *ThreeDSecureAttributes `json:"three_d_secure_attributes,omitempty"`
+	Installments           *Installments           `json:"installments,omitempty"`
+	ProviderSpecificData   map[string]interface{}  `json:"provider_specific_data,omitempty"`
 }
 
 // New creates new Authorization entity.

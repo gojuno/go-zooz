@@ -24,10 +24,10 @@ type Refund struct {
 
 // RefundParams is a set of params for creating entity.
 type RefundParams struct {
-	ReconciliationID string  `json:"reconciliation_id"`
-	Amount           float64 `json:"amount"`
-	CaptureID        string  `json:"capture_id"`
-	Reason           string  `json:"reason"`
+	ReconciliationID string  `json:"reconciliation_id,omitempty"`
+	Amount           float64 `json:"amount,omitempty"`
+	CaptureID        string  `json:"capture_id,omitempty"`
+	Reason           string  `json:"reason,omitempty"`
 }
 
 // New creates new Refund entity.
