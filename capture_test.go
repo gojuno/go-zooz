@@ -14,7 +14,7 @@ func TestCaptureClient_New(t *testing.T) {
 			headerIdempotencyKey: "idempotency_key",
 		},
 		expectedReqObj: &CaptureParams{
-			ReconciliationID: "reconcilation_id",
+			ReconciliationID: "reconciliation_id",
 		},
 		returnRespObj: &Capture{
 			ID: "id",
@@ -28,7 +28,7 @@ func TestCaptureClient_New(t *testing.T) {
 		"idempotency_key",
 		"payment_id",
 		&CaptureParams{
-			ReconciliationID: "reconcilation_id",
+			ReconciliationID: "reconciliation_id",
 		},
 	)
 

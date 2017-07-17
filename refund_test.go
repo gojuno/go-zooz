@@ -14,7 +14,7 @@ func TestRefundClient_New(t *testing.T) {
 			headerIdempotencyKey: "idempotency_key",
 		},
 		expectedReqObj: &RefundParams{
-			ReconciliationID: "reconcilation_id",
+			ReconciliationID: "reconciliation_id",
 		},
 		returnRespObj: &Refund{
 			ID: "id",
@@ -28,7 +28,7 @@ func TestRefundClient_New(t *testing.T) {
 		"idempotency_key",
 		"payment_id",
 		&RefundParams{
-			ReconciliationID: "reconcilation_id",
+			ReconciliationID: "reconciliation_id",
 		},
 	)
 
