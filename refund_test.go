@@ -7,9 +7,9 @@ import (
 
 func TestRefundClient_New(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "POST",
-		expectedPath: "payments/payment_id/refunds",
+		expectedPath:   "payments/payment_id/refunds",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
@@ -45,9 +45,9 @@ func TestRefundClient_New(t *testing.T) {
 
 func TestRefundClient_Get(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/refunds/id",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/refunds/id",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &Refund{
 			ID: "id",
@@ -75,9 +75,9 @@ func TestRefundClient_Get(t *testing.T) {
 
 func TestRefundClient_GetList(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/refunds",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/refunds",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &[]Refund{
 			{

@@ -7,9 +7,9 @@ import (
 
 func TestPaymentMethodClient_New(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "POST",
-		expectedPath: "customers/customer_id/payment-methods/token",
+		expectedPath:   "customers/customer_id/payment-methods/token",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
@@ -40,9 +40,9 @@ func TestPaymentMethodClient_New(t *testing.T) {
 
 func TestPaymentMethodClient_Get(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "customers/customer_id/payment-methods/token",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "customers/customer_id/payment-methods/token",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &PaymentMethod{
 			Token: "token",
@@ -70,9 +70,9 @@ func TestPaymentMethodClient_Get(t *testing.T) {
 
 func TestPaymentMethodClient_GetList(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "customers/customer_id/payment-methods",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "customers/customer_id/payment-methods",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &[]PaymentMethod{
 			{

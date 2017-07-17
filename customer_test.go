@@ -1,15 +1,15 @@
 package zooz
 
 import (
-	"testing"
 	"context"
+	"testing"
 )
 
 func TestCustomerClient_New(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "POST",
-		expectedPath: "customers",
+		expectedPath:   "customers",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
@@ -44,9 +44,9 @@ func TestCustomerClient_New(t *testing.T) {
 
 func TestCustomerClient_Get(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "GET",
-		expectedPath: "customers/id",
+		expectedPath:   "customers/id",
 		returnRespObj: &Customer{
 			ID: "id",
 		},
@@ -72,9 +72,9 @@ func TestCustomerClient_Get(t *testing.T) {
 
 func TestCustomerClient_Update(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "PUT",
-		expectedPath: "customers/id",
+		expectedPath:   "customers/id",
 		expectedReqObj: &CustomerParams{
 			CustomerReference: "reference",
 		},
@@ -106,9 +106,9 @@ func TestCustomerClient_Update(t *testing.T) {
 
 func TestCustomerClient_Delete(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "DELETE",
-		expectedPath: "customers/id",
+		expectedPath:   "customers/id",
 	}
 
 	c := &CustomerClient{Caller: caller}

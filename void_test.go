@@ -7,9 +7,9 @@ import (
 
 func TestVoidClient_New(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "POST",
-		expectedPath: "payments/payment_id/voids",
+		expectedPath:   "payments/payment_id/voids",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
@@ -39,9 +39,9 @@ func TestVoidClient_New(t *testing.T) {
 
 func TestVoidClient_Get(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/voids/id",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/voids/id",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &Void{
 			ID: "id",
@@ -69,9 +69,9 @@ func TestVoidClient_Get(t *testing.T) {
 
 func TestVoidClient_GetList(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/voids",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/voids",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &[]Void{
 			{

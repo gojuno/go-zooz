@@ -3,11 +3,11 @@ package zooz
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"testing"
-	"encoding/json"
 	"reflect"
+	"testing"
 
 	"github.com/pkg/errors"
 )
@@ -21,13 +21,13 @@ type request struct {
 }
 
 type callerMock struct {
-	t *testing.T
-	expectedMethod string
-	expectedPath string
+	t               *testing.T
+	expectedMethod  string
+	expectedPath    string
 	expectedHeaders map[string]string
-	expectedReqObj interface{}
-	returnRespObj interface{}
-	returnError error
+	expectedReqObj  interface{}
+	returnRespObj   interface{}
+	returnError     error
 }
 
 func (c *httpClientMock) Do(r *http.Request) (*http.Response, error) {
@@ -237,4 +237,3 @@ func TestCall_WithTransportError(t *testing.T) {
 		t.Errorf("Invalid error cause: %v", errors.Cause(err))
 	}
 }
-

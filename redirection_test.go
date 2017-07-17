@@ -7,9 +7,9 @@ import (
 
 func TestRedirectionClient_Get(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/redirections/id",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/redirections/id",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &Redirection{
 			ID: "id",
@@ -37,9 +37,9 @@ func TestRedirectionClient_Get(t *testing.T) {
 
 func TestRedirectionClient_GetList(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/redirections",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/redirections",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &[]Redirection{
 			{

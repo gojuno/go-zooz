@@ -7,9 +7,9 @@ import (
 
 func TestCaptureClient_New(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "POST",
-		expectedPath: "payments/payment_id/captures",
+		expectedPath:   "payments/payment_id/captures",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
@@ -45,9 +45,9 @@ func TestCaptureClient_New(t *testing.T) {
 
 func TestCaptureClient_Get(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/captures/id",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/captures/id",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &Capture{
 			ID: "id",
@@ -75,9 +75,9 @@ func TestCaptureClient_Get(t *testing.T) {
 
 func TestCaptureClient_GetList(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/captures",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/captures",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &[]Capture{
 			{

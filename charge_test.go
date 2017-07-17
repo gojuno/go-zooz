@@ -7,11 +7,11 @@ import (
 
 func TestChargeClient_New(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "POST",
-		expectedPath: "payments/payment_id/charges",
+		expectedPath:   "payments/payment_id/charges",
 		expectedHeaders: map[string]string{
-			headerIdempotencyKey: "idempotency_key",
+			headerIdempotencyKey:  "idempotency_key",
 			headerClientIPAddress: "ip",
 			headerClientUserAgent: "ua",
 		},
@@ -51,9 +51,9 @@ func TestChargeClient_New(t *testing.T) {
 
 func TestChargeClient_Get(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/charges/id",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/charges/id",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &Charge{
 			ID: "id",
@@ -81,9 +81,9 @@ func TestChargeClient_Get(t *testing.T) {
 
 func TestChargeClient_GetList(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/charges",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/charges",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &[]Charge{
 			{

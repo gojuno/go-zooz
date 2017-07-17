@@ -1,17 +1,17 @@
 package zooz
 
 import (
-	"testing"
 	"context"
+	"testing"
 )
 
 func TestAuthorizationClient_New(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "POST",
-		expectedPath: "payments/payment_id/authorizations",
+		expectedPath:   "payments/payment_id/authorizations",
 		expectedHeaders: map[string]string{
-			headerIdempotencyKey: "idempotency_key",
+			headerIdempotencyKey:  "idempotency_key",
 			headerClientIPAddress: "ip",
 			headerClientUserAgent: "ua",
 		},
@@ -51,9 +51,9 @@ func TestAuthorizationClient_New(t *testing.T) {
 
 func TestAuthorizationClient_Get(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/authorizations/id",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/authorizations/id",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &Authorization{
 			ID: "id",
@@ -81,9 +81,9 @@ func TestAuthorizationClient_Get(t *testing.T) {
 
 func TestAuthorizationClient_GetList(t *testing.T) {
 	caller := &callerMock{
-		t: t,
-		expectedMethod: "GET",
-		expectedPath: "payments/payment_id/authorizations",
+		t:               t,
+		expectedMethod:  "GET",
+		expectedPath:    "payments/payment_id/authorizations",
 		expectedHeaders: map[string]string{},
 		returnRespObj: &[]Authorization{
 			{

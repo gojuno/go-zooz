@@ -1,15 +1,15 @@
 package zooz
 
 import (
-	"testing"
 	"context"
+	"testing"
 )
 
 func TestPaymentClient_New(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "POST",
-		expectedPath: "payments",
+		expectedPath:   "payments",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
@@ -44,9 +44,9 @@ func TestPaymentClient_New(t *testing.T) {
 
 func TestPaymentClient_Get(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "GET",
-		expectedPath: "payments/id?expand=authorizations&expand=captures",
+		expectedPath:   "payments/id?expand=authorizations&expand=captures",
 		returnRespObj: &Payment{
 			ID: "id",
 		},
@@ -74,9 +74,9 @@ func TestPaymentClient_Get(t *testing.T) {
 
 func TestPaymentClient_Update(t *testing.T) {
 	caller := &callerMock{
-		t: t,
+		t:              t,
 		expectedMethod: "PUT",
-		expectedPath: "payments/id",
+		expectedPath:   "payments/id",
 		expectedReqObj: &PaymentParams{
 			Amount: 100.0,
 		},
