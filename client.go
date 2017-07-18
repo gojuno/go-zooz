@@ -22,8 +22,8 @@ type Caller interface {
 	Call(ctx context.Context, method, path string, headers map[string]string, reqObj interface{}, respObj interface{}) error
 }
 
-// httpClient is internal interface fot HTTP client. Built-in net/http.Client implements this interface as well.
-type httpClient interface {
+// HTTPClient is interface fot HTTP client. Built-in net/http.Client implements this interface as well.
+type HTTPClient interface {
 	Do(r *http.Request) (*http.Response, error)
 }
 
@@ -32,7 +32,7 @@ type Option func(*Client)
 
 // Client contains API parameters and provides set of API entity clients.
 type Client struct {
-	httpClient httpClient
+	httpClient HTTPClient
 	appID      string
 	privateKey string
 	env        env
@@ -74,7 +74,7 @@ func New(options ...Option) *Client {
 }
 
 // OptHTTPClient returns option with given HTTP client.
-func OptHTTPClient(httpClient httpClient) Option {
+func OptHTTPClient(httpClient HTTPClient) Option {
 	return func(c *Client) {
 		c.httpClient = httpClient
 	}
