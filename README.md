@@ -55,7 +55,7 @@ deleteCustomerErr := client.Customer().Delete(context.Background(), customer.ID)
 
 ## Custom HTTP client
 
-By default Zooz client uses `http.DefaultClient`. You can set custom HTTP client using `zooz.OptHttpClient` option:
+By default Zooz client uses `http.DefaultClient`. You can set custom HTTP client using `zooz.OptHTTPClient` option:
 ```
 httpClient := &http.Client{
 	Timeout: time.Minute,
@@ -64,10 +64,10 @@ httpClient := &http.Client{
 client := zooz.New(
 	zooz.OptAppID("com.yourhost.go_client"),
 	zooz.OptPrivateKey("a630518c-22da-4eaa-bb39-502ad7832030"),
-	zooz.OptHttpClient(httpClient),
+	zooz.OptHTTPClient(httpClient),
 )
 ```
-You can use any HTTP client, implementing `zooz.httpClient` interface with method `Do(r *http.Request) (*http.Response, error)`. Built-in `net/http` client implements it, of course.
+You can use any HTTP client, implementing `zooz.HTTPClient` interface with method `Do(r *http.Request) (*http.Response, error)`. Built-in `net/http` client implements it, of course.
 
 ## Test/live environment
 
