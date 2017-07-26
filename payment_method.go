@@ -20,7 +20,7 @@ type PaymentMethod struct {
 	Created            json.Number       `json:"created"`
 	Customer           string            `json:"customer"`
 	AdditionalDetails  AdditionalDetails `json:"additional_details"`
-	BinNumber          int               `json:"bin_number"`
+	BinNumber          json.Number       `json:"bin_number"`
 	Vendor             string            `json:"vendor"`
 	Issuer             string            `json:"issuer"`
 	CardType           string            `json:"card_type"`
