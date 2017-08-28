@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -104,17 +105,17 @@ func OptEnv(env env) Option {
 // Call does HTTP request with given params using set HTTP client. Response will be decoded into respObj.
 // Error may be returned if something went wrong. If API return error as response, then Call returns error of type zooz.Error.
 func (c *Client) Call(ctx context.Context, method, path string, headers map[string]string, reqObj interface{}, respObj interface{}) (callErr error) {
-	var reqBody []byte
-	var err error
+	var reqBody io.Reader
 
 	if reqObj != nil {
-		reqBody, err = json.Marshal(reqObj)
+		reqBodyBytes, err := json.Marshal(reqObj)
 		if err != nil {
 			return errors.Wrap(err, "failed to marshal request body")
 		}
+		reqBody = bytes.NewBuffer(reqBodyBytes)
 	}
 
-	req, err := http.NewRequest(method, apiURL+path, bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(method, apiURL+path, reqBody)
 	if err != nil {
 		return errors.Wrap(err, "failed to create HTTP request")
 	}
