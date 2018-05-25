@@ -15,6 +15,7 @@ type PaymentMethodClient struct {
 // PaymentMethod is a entity model.
 type PaymentMethod struct {
 	Type               string            `json:"type"`
+	TokenType          string            `json:"token_type"`
 	PassLuhnValidation bool              `json:"pass_luhn_validation"`
 	Token              string            `json:"token"`
 	Created            json.Number       `json:"created"`

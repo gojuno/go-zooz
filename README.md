@@ -1,4 +1,4 @@
-# Zooz API client [![GoDoc](https://godoc.org/github.com/gojuno/go-zooz?status.svg)](http://godoc.org/github.com/gojuno/go-zooz) [![Build Status](https://travis-ci.org/gojuno/go-zooz.svg?branch=master)](https://travis-ci.org/gojuno/go-zooz) [![Go Report Card](https://goreportcard.com/badge/github.com/gojuno/go-zooz)](https://goreportcard.com/report/github.com/gojuno/go-zooz)
+# Zooz API client [![GoDoc](https://godoc.org/github.com/brainly/go-zooz?status.svg)](http://godoc.org/github.com/brainly/go-zooz) [![Build Status](https://travis-ci.com/brainly/go-zooz.svg?branch=master)](https://travis-ci.com/brainly/go-zooz) [![Go Report Card](https://goreportcard.com/badge/github.com/brainly/go-zooz)](https://goreportcard.com/report/github.com/brainly/go-zooz)
 
 This repo contains Zooz API client written in Go.
 
@@ -10,7 +10,7 @@ Before using this client you need to register and configure Zooz account: https:
 
 Download package:
 ```
-go get github.com/gojuno/go-zooz
+go get github.com/brainly/go-zooz
 ```
 
 Client uses `github.com/pkg/errors`, so you may need to download this package as well:
@@ -22,7 +22,7 @@ go get github.com/pkg/errors
 
 To init client you will need `private_key` and `app_id` which you can get from your Zooz account profile.
 ```
-import "github.com/gojuno/go-zooz"
+import "github.com/brainly/go-zooz"
 ...
 // Init client
 client := zooz.New(
