@@ -42,7 +42,7 @@ type Client struct {
 type env string
 
 const (
-	apiVersion = "1.0.0"
+	apiVersion = "1.2.0"
 	apiURL     = "https://api.paymentsos.com/"
 
 	// EnvTest is a value for test environment header

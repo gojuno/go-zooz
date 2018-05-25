@@ -16,7 +16,10 @@ func TestChargeClient_New(t *testing.T) {
 			headerClientUserAgent: "ua",
 		},
 		expectedReqObj: &ChargeParams{
-			PaymentMethodToken: "token",
+			PaymentMethod: PaymentMethodDetails{
+				Type:  "tokenized",
+				Token: "token",
+			},
 		},
 		returnRespObj: &Charge{
 			ID: "id",
@@ -30,7 +33,10 @@ func TestChargeClient_New(t *testing.T) {
 		"idempotency_key",
 		"payment_id",
 		&ChargeParams{
-			PaymentMethodToken: "token",
+			PaymentMethod: PaymentMethodDetails{
+				Type:  "tokenized",
+				Token: "token",
+			},
 		},
 		&ClientInfo{
 			IPAddress: "ip",
