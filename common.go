@@ -26,6 +26,7 @@ type Address struct {
 	FirstName string `json:"first_name,omitempty"`
 	LastName  string `json:"last_name,omitempty"`
 	Phone     string `json:"phone,omitempty"`
+	Email     string `json:"email,omitempty"`
 }
 
 // AdditionalDetails is a set of any custom key-value info.
@@ -79,6 +80,6 @@ type PaymentMethodDetails struct {
 
 // PaymentMethodHref wraps PaymentMethod with associated href.
 type PaymentMethodHref struct {
-	Href          string        `json:"href"`
+	Href          string         `json:"href"`
 	PaymentMethod *PaymentMethod `json:"payment_method"`
 }
