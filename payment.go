@@ -24,14 +24,14 @@ type Payment struct {
 	PossibleNextActions []PaymentNextAction `json:"possible_next_actions"`
 
 	// Expansions
-	PaymentMethod    *PaymentMethod           `json:"payment_method"`
+	PaymentMethod    *PaymentMethodHref       `json:"payment_method"`
 	Customer         *Customer                `json:"customer"`
 	RelatedResources *PaymentRelatedResources `json:"related_resources"`
 }
 
 // PaymentParams is a set of params for creating and updating entity.
 type PaymentParams struct {
-	Amount                  float64           `json:"amount"`
+	Amount                  int64             `json:"amount"`
 	Currency                string            `json:"currency"`
 	CustomerID              string            `json:"customer_id,omitempty"`
 	AdditionalDetails       AdditionalDetails `json:"additional_details,omitempty"`
@@ -45,17 +45,17 @@ type PaymentParams struct {
 type PaymentOrder struct {
 	ID                string                 `json:"id,omitempty"`
 	AdditionalDetails AdditionalDetails      `json:"additional_details,omitempty"`
-	TaxAmount         float64                `json:"tax_amount,omitempty"`
-	TaxPercentage     float64                `json:"tax_percentage,omitempty"`
+	TaxAmount         int64                  `json:"tax_amount,omitempty"`
+	TaxPercentage     int64                  `json:"tax_percentage,omitempty"`
 	LineItems         []PaymentOrderLineItem `json:"line_items,omitempty"`
 }
 
 // PaymentOrderLineItem represents one item of order.
 type PaymentOrderLineItem struct {
-	ID        string  `json:"id,omitempty"`
-	Name      string  `json:"name,omitempty"`
-	Quantity  int     `json:"quantity,omitempty"`
-	UnitPrice float64 `json:"unit_price,omitempty"`
+	ID        string `json:"id,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Quantity  int64  `json:"quantity,omitempty"`
+	UnitPrice int64  `json:"unit_price,omitempty"`
 }
 
 // PaymentNextAction represents action which may be performed on Payment entity.

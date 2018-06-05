@@ -26,6 +26,7 @@ type Address struct {
 	FirstName string `json:"first_name,omitempty"`
 	LastName  string `json:"last_name,omitempty"`
 	Phone     string `json:"phone,omitempty"`
+	Email     string `json:"email,omitempty"`
 }
 
 // AdditionalDetails is a set of any custom key-value info.
@@ -41,9 +42,9 @@ type ThreeDSecureAttributes struct {
 
 // Installments is a set of options of installments.
 type Installments struct {
-	NumberOfInstallments    int     `json:"number_of_installments"`
-	FirstPaymentAmount      float64 `json:"first_payment_amount"`
-	RemainingPaymentsAmount float64 `json:"remaining_payments_amount"`
+	NumberOfInstallments    int64 `json:"number_of_installments"`
+	FirstPaymentAmount      int64 `json:"first_payment_amount"`
+	RemainingPaymentsAmount int64 `json:"remaining_payments_amount"`
 }
 
 // ProviderData is a set of params describing payment provider.
@@ -65,4 +66,20 @@ type ProviderDocument struct {
 	Descriptor  string `json:"descriptor"`
 	ContentType string `json:"content_type"`
 	Href        string `json:"href"`
+}
+
+// PaymentMethodDetails represents payment method details for POST requests.
+type PaymentMethodDetails struct {
+	Type              string            `json:"type"`
+	Token             string            `json:"token,omitempty"`
+	CreditCardCvv     string            `json:"credit_card_cvv,omitempty"`
+	SourceType        string            `json:"source_type,omitempty"`
+	Vendor            string            `json:"vendor,omitempty"`
+	AdditionalDetails AdditionalDetails `json:"additional_details,omitempty"`
+}
+
+// PaymentMethodHref wraps PaymentMethod with associated href.
+type PaymentMethodHref struct {
+	Href          string         `json:"href"`
+	PaymentMethod *PaymentMethod `json:"payment_method"`
 }

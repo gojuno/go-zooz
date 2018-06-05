@@ -16,10 +16,10 @@ type AuthorizationClient struct {
 type Authorization struct {
 	ID                         string                  `json:"id"`
 	Result                     Result                  `json:"result"`
-	Amount                     float64                 `json:"amount"`
+	Amount                     int64                   `json:"amount"`
 	Created                    json.Number             `json:"created"`
 	ReconciliationID           string                  `json:"reconciliation_id"`
-	PaymentMethod              PaymentMethod           `json:"payment_method"`
+	PaymentMethod              PaymentMethodHref       `json:"payment_method"`
 	ThreeDSecureAttributes     *ThreeDSecureAttributes `json:"three_d_secure_attributes"`
 	Installments               *Installments           `json:"installments"`
 	ProviderData               ProviderData            `json:"provider_data"`
@@ -31,8 +31,7 @@ type Authorization struct {
 
 // AuthorizationParams is a set of params for creating entity.
 type AuthorizationParams struct {
-	PaymentMethodToken     string                  `json:"payment_method_token"`
-	CreditCardCvv          string                  `json:"credit_card_cvv,omitempty"`
+	PaymentMethod          PaymentMethodDetails    `json:"payment_method"`
 	MerchantSiteURL        string                  `json:"merchant_site_url,omitempty"`
 	ReconciliationID       string                  `json:"reconciliation_id,omitempty"`
 	ThreeDSecureAttributes *ThreeDSecureAttributes `json:"three_d_secure_attributes,omitempty"`

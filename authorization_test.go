@@ -16,7 +16,10 @@ func TestAuthorizationClient_New(t *testing.T) {
 			headerClientUserAgent: "ua",
 		},
 		expectedReqObj: &AuthorizationParams{
-			PaymentMethodToken: "token",
+			PaymentMethod: PaymentMethodDetails{
+				Type:  "tokenized",
+				Token: "token",
+			},
 		},
 		returnRespObj: &Authorization{
 			ID: "id",
@@ -30,7 +33,10 @@ func TestAuthorizationClient_New(t *testing.T) {
 		"idempotency_key",
 		"payment_id",
 		&AuthorizationParams{
-			PaymentMethodToken: "token",
+			PaymentMethod: PaymentMethodDetails{
+				Type:  "tokenized",
+				Token: "token",
+			},
 		},
 		&ClientInfo{
 			IPAddress: "ip",
