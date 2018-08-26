@@ -122,3 +122,34 @@ func TestCustomerClient_Delete(t *testing.T) {
 		t.Error("Error must be nil")
 	}
 }
+
+func TestCustomerClient_GetByReference(t *testing.T) {
+	caller := &callerMock{
+		t:              t,
+		expectedMethod: "GET",
+		expectedPath:   "customers/customer_reference",
+		returnRespObj: &Customer{
+			ID: "id",
+			CustomerParams: CustomerParams{
+				CustomerReference: "customer_reference",
+			},
+		},
+	}
+
+	c := &CustomerClient{Caller: caller}
+
+	customer, err := c.Get(
+		context.Background(),
+		"customer_reference",
+	)
+
+	if err != nil {
+		t.Error("Error must be nil")
+	}
+	if customer == nil {
+		t.Errorf("Customer is nil")
+	}
+	if customer.CustomerReference != "customer_reference" {
+		t.Errorf("Customer is not as expected: %+v", customer)
+	}
+}
