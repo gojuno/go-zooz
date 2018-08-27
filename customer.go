@@ -33,7 +33,8 @@ type CustomerParams struct {
 }
 
 const (
-	customersPath = "customers"
+	customersPath          = "customers"
+	customerReferenceQuery = "customer_reference"
 )
 
 // New creates new Customer entity.
@@ -54,6 +55,16 @@ func (c *CustomerClient) Get(ctx context.Context, id string) (*Customer, error) 
 	return customer, nil
 }
 
+// Get returns Customer entity by customer reference.
+func (c *CustomerClient) GetByReference(ctx context.Context, customerReference string) (*Customer, error) {
+	// TODO: change it after PaymentsOS fix
+	customers := []*Customer{}
+	if err := c.Caller.Call(ctx, "GET", c.customerReferencePath(customerReference), nil, nil, &customers); err != nil {
+		return nil, err
+	}
+	return customers[0], nil
+}
+
 // Update updates Customer entity with given params and return updated Customer entity.
 func (c *CustomerClient) Update(ctx context.Context, id string, params *CustomerParams) (*Customer, error) {
 	customer := &Customer{}
@@ -70,4 +81,8 @@ func (c *CustomerClient) Delete(ctx context.Context, id string) error {
 
 func (c *CustomerClient) customerPath(id string) string {
 	return fmt.Sprintf("%s/%s", customersPath, id)
+}
+
+func (c *CustomerClient) customerReferencePath(reference string) string {
+	return fmt.Sprintf("%s?%s=%s", customersPath, customerReferenceQuery, reference)
 }
