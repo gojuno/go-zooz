@@ -32,6 +32,7 @@ type PaymentMethod struct {
 	Last4Digits        string            `json:"last_4_digits"`
 	IdentityDocument   *IdentityDocument `json:"identity_document"`
 	BillingAddress     *Address          `json:"billing_address"`
+	Fingerprint        string            `json:"fingerprint"`
 }
 
 // IdentityDocument represents some identity document.
