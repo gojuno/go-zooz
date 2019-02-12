@@ -219,3 +219,8 @@ func (c *Client) Refund() *RefundClient {
 func (c *Client) Redirection() *RedirectionClient {
 	return &RedirectionClient{Caller: c}
 }
+
+// SupportedPaymentMethods creates client to work with SupportedPaymentMethod entity list.
+func (c *Client) SupportedPaymentMethods() *SupportedPaymentMethodClient {
+	return &SupportedPaymentMethodClient{Caller: c}
+}

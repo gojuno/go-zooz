@@ -2,11 +2,18 @@ package zooz
 
 // Result represents status and category of some methods response.
 type Result struct {
-	Status      string `json:"status"`
-	Category    string `json:"category"`
-	SubCategory string `json:"sub_category"`
-	Description string `json:"description"`
+	Status      ResultStatus `json:"status"`
+	Category    string       `json:"category"`
+	SubCategory string       `json:"sub_category"`
+	Description string       `json:"description"`
 }
+
+type ResultStatus string
+
+const (
+	StatusSucceed ResultStatus = "Succeed"
+	StatusFailed  ResultStatus = "Failed"
+)
 
 // ClientInfo represents optional request params for some methods.
 type ClientInfo struct {
