@@ -87,6 +87,6 @@ type PaymentMethodDetails struct {
 
 // PaymentMethodHref wraps PaymentMethod with associated href.
 type PaymentMethodHref struct {
-	Href          string         `json:"href"`
-	PaymentMethod *PaymentMethod `json:"payment_method"`
+	Href           string `json:"href"`
+	*PaymentMethod
 }
