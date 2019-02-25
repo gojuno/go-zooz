@@ -13,6 +13,11 @@ func TestVoidClient_New(t *testing.T) {
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
+		expectedReqObj: VoidParams{
+			AdditionalDetails: map[string]interface{}{
+				"key": "value",
+			},
+		},
 		returnRespObj: &Void{
 			ID: "id",
 		},
@@ -24,6 +29,11 @@ func TestVoidClient_New(t *testing.T) {
 		context.Background(),
 		"idempotency_key",
 		"payment_id",
+		&VoidParams{
+			AdditionalDetails: map[string]interface{}{
+				"key": "value",
+			},
+		},
 	)
 
 	if err != nil {
