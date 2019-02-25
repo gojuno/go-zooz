@@ -14,16 +14,22 @@ type VoidClient struct {
 
 // Void is an entity model.
 type Void struct {
-	ID           string       `json:"id"`
-	Result       Result       `json:"result"`
-	Created      json.Number  `json:"created"`
-	ProviderData ProviderData `json:"provider_data"`
+	ID                string                 `json:"id"`
+	Result            Result                 `json:"result"`
+	Created           json.Number            `json:"created"`
+	ProviderData      ProviderData           `json:"provider_data"`
+	AdditionalDetails map[string]interface{} `json:"additional_details,omitempty"`
+}
+
+// VoidParams is a set of params for creating Void entity.
+type VoidParams struct {
+	AdditionalDetails map[string]interface{} `json:"additional_details,omitempty"`
 }
 
 // New create new Void entity.
-func (c *VoidClient) New(ctx context.Context, idempotencyKey string, paymentID string) (*Void, error) {
+func (c *VoidClient) New(ctx context.Context, idempotencyKey string, paymentID string, params *VoidParams) (*Void, error) {
 	void := &Void{}
-	if err := c.Caller.Call(ctx, "POST", c.voidsPath(paymentID), map[string]string{headerIdempotencyKey: idempotencyKey}, nil, void); err != nil {
+	if err := c.Caller.Call(ctx, "POST", c.voidsPath(paymentID), map[string]string{headerIdempotencyKey: idempotencyKey}, params, void); err != nil {
 		return nil, err
 	}
 	return void, nil
