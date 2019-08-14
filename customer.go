@@ -30,6 +30,7 @@ type CustomerParams struct {
 	Email             string            `json:"email,omitempty"`
 	AdditionalDetails AdditionalDetails `json:"additional_details,omitempty"`
 	ShippingAddress   *Address          `json:"shipping_address,omitempty"`
+	PaymentMethods    []PaymentMethod   `json:"payment_methods,omitempty"`
 }
 
 const (
