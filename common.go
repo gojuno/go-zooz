@@ -9,10 +9,22 @@ type Result struct {
 }
 
 type ResultStatus string
+type TransactionCardEntryMode string
 
 const (
 	StatusSucceed ResultStatus = "Succeed"
 	StatusFailed  ResultStatus = "Failed"
+
+	// The initial transaction in which the customer agrees to using stored card information for subsequent customer-initiated transactions, or subsequent unscheduled transactions initiated by the merchant.
+	ConsentTransaction TransactionCardEntryMode = "consent_transaction"
+	// The initial transaction in which the customer agrees to using stored card information for subsequent scheduled (recurring) transactions.
+	RecurringConsentTransaction TransactionCardEntryMode = "recurring_consent_transaction"
+	// A transaction in a series of transactions that use stored card information and that are processed at fixed, regular intervals.
+	RecurringSubsequentTransaction TransactionCardEntryMode = "recurring_subsequent_transaction"
+	// Used for card-on-file transactions, initiated by the customer.
+	CofCardholderInitiatedTransaction TransactionCardEntryMode = "cof_cardholder_initiated_transaction"
+	// Used for unscheduled card-on-file transactions, initiated by you (as the merchant).
+	CofMerchantInitiatedTransaction TransactionCardEntryMode = "cof_merchant_initiated_transaction"
 )
 
 // ClientInfo represents optional request params for some methods.
@@ -54,7 +66,7 @@ type ThreeDSInternal struct {
 	MobilePhoneCountry               string `json:"mobile_phone_country,omitempty"`
 	HomePhoneCountry                 string `json:"home_phone_country,omitempty"`
 	WorkPhoneCountry                 string `json:"work_phone_country,omitempty"`
-	AddressMatch                     *bool   `json:"address_match,omitempty"`
+	AddressMatch                     *bool  `json:"address_match,omitempty"`
 	ProductCode                      string `json:"product_code,omitempty"`
 	ShippingMethodIndicator          string `json:"shipping_method_indicator,omitempty"`
 	DeliveryTimeFrame                string `json:"delivery_time_frame,omitempty"`
@@ -89,7 +101,7 @@ type ThreeDSInternal struct {
 	RecurringEndDate                 string `json:"recurring_end_date,omitempty"`
 	RecurringFrequency               int64  `json:"recurring_frequency,omitempty"`
 	BrowserHeader                    string `json:"browser_header,omitempty"`
-	BrowserJavaEnabled               *bool   `json:"browser_java_enabled,omitempty"`
+	BrowserJavaEnabled               *bool  `json:"browser_java_enabled,omitempty"`
 	BrowserLanguage                  string `json:"browser_language,omitempty"`
 	BrowserColorDepth                string `json:"browser_color_depth,omitempty"`
 	BrowserScreenHeight              string `json:"browser_screen_height,omitempty"`
@@ -116,6 +128,12 @@ type ThreeDSExternal struct {
 	DSXID                string `json:"ds_xid,omitempty"`
 	CAVV                 string `json:"cavv"`
 	EciFlag              string `json:"eci_flag"`
+}
+
+// CofTransactionIndicators contains indicators pertaining to the use of a customer's stored card information
+type CofTransactionIndicators struct {
+	CardEntryMode           *TransactionCardEntryMode `json:"card_entry_mode,omitempty"`
+	CofConsentTransactionId string                    `json:"cof_consent_transaction_id,omitempty"`
 }
 
 // Installments is a set of options of installments.

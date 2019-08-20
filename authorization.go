@@ -32,13 +32,14 @@ type Authorization struct {
 
 // AuthorizationParams is a set of params for creating entity.
 type AuthorizationParams struct {
-	PaymentMethod          PaymentMethodDetails    `json:"payment_method"`
-	MerchantSiteURL        string                  `json:"merchant_site_url,omitempty"`
-	ReconciliationID       string                  `json:"reconciliation_id,omitempty"`
-	ThreeDSecureAttributes *ThreeDSecureAttributes `json:"three_d_secure_attributes,omitempty"`
-	Installments           *Installments           `json:"installments,omitempty"`
-	ProviderSpecificData   map[string]interface{}  `json:"provider_specific_data,omitempty"`
-	AdditionalDetails      map[string]interface{}  `json:"additional_details,omitempty"`
+	PaymentMethod            PaymentMethodDetails      `json:"payment_method"`
+	MerchantSiteURL          string                    `json:"merchant_site_url,omitempty"`
+	ReconciliationID         string                    `json:"reconciliation_id,omitempty"`
+	ThreeDSecureAttributes   *ThreeDSecureAttributes   `json:"three_d_secure_attributes,omitempty"`
+	Installments             *Installments             `json:"installments,omitempty"`
+	ProviderSpecificData     map[string]interface{}    `json:"provider_specific_data,omitempty"`
+	AdditionalDetails        map[string]interface{}    `json:"additional_details,omitempty"`
+	CofTransactionIndicators *CofTransactionIndicators `json:"cof_transaction_indicators,omitempty"`
 }
 
 // New creates new Authorization entity.

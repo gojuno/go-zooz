@@ -31,12 +31,13 @@ type Charge struct {
 
 // ChargeParams is a set of params for creating entity.
 type ChargeParams struct {
-	PaymentMethod          PaymentMethodDetails    `json:"payment_method"`
-	MerchantSiteURL        string                  `json:"merchant_site_url,omitempty"`
-	ReconciliationID       string                  `json:"reconciliation_id,omitempty"`
-	ThreeDSecureAttributes *ThreeDSecureAttributes `json:"three_d_secure_attributes,omitempty"`
-	Installments           *Installments           `json:"installments,omitempty"`
-	ProviderSpecificData   map[string]interface{}  `json:"provider_specific_data,omitempty"`
+	PaymentMethod            PaymentMethodDetails      `json:"payment_method"`
+	MerchantSiteURL          string                    `json:"merchant_site_url,omitempty"`
+	ReconciliationID         string                    `json:"reconciliation_id,omitempty"`
+	ThreeDSecureAttributes   *ThreeDSecureAttributes   `json:"three_d_secure_attributes,omitempty"`
+	Installments             *Installments             `json:"installments,omitempty"`
+	ProviderSpecificData     map[string]interface{}    `json:"provider_specific_data,omitempty"`
+	CofTransactionIndicators *CofTransactionIndicators `json:"cof_transaction_indicators,omitempty"`
 }
 
 // New creates new Charge entity.
