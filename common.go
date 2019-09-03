@@ -53,8 +53,8 @@ type AdditionalDetails map[string]string
 
 // ThreeDSecureAttributes is a set of attributes for 3D-Secure.
 type ThreeDSecureAttributes struct {
-	Internal ThreeDSInternal `json:"internal"`
-	External ThreeDSExternal `json:"external"`
+	Internal *ThreeDSInternal `json:"internal,omitempty"`
+	External *ThreeDSExternal `json:"external,omitempty"`
 }
 
 // ThreeDSInternal is a set of attributes for 3D-Secure 2.x.x handled internally by PaymentsOS
@@ -160,7 +160,7 @@ type ProviderData struct {
 }
 
 type TransactionCost struct {
-	AppliedFees AppliedFees `json:"applied_fees"`
+	AppliedFees []AppliedFees `json:"applied_fees"`
 }
 
 type AppliedFees struct {
