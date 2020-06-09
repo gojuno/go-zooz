@@ -12,6 +12,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -34,6 +35,7 @@ type Option func(*Client)
 // Client contains API parameters and provides set of API entity clients.
 type Client struct {
 	httpClient HTTPClient
+	apiURL     string
 	appID      string
 	privateKey string
 	env        env
@@ -43,7 +45,7 @@ type env string
 
 const (
 	apiVersion = "1.2.0"
-	apiURL     = "https://api.paymentsos.com/"
+	apiURL     = "https://api.paymentsos.com"
 
 	// EnvTest is a value for test environment header
 	EnvTest env = "test"
@@ -64,11 +66,16 @@ const (
 func New(options ...Option) *Client {
 	c := &Client{
 		httpClient: http.DefaultClient,
+		apiURL:     apiURL,
 		env:        EnvTest,
 	}
 
 	for _, option := range options {
 		option(c)
+	}
+
+	if !strings.HasSuffix(c.apiURL, "/") {
+		c.apiURL = c.apiURL + "/"
 	}
 
 	return c
@@ -78,6 +85,13 @@ func New(options ...Option) *Client {
 func OptHTTPClient(httpClient HTTPClient) Option {
 	return func(c *Client) {
 		c.httpClient = httpClient
+	}
+}
+
+// OptAPIURL returns option with given API URL.
+func OptAPIURL(apiURL string) Option {
+	return func(c *Client) {
+		c.apiURL = apiURL
 	}
 }
 
@@ -115,7 +129,7 @@ func (c *Client) Call(ctx context.Context, method, path string, headers map[stri
 		reqBody = bytes.NewBuffer(reqBodyBytes)
 	}
 
-	req, err := http.NewRequest(method, apiURL+path, reqBody)
+	req, err := http.NewRequest(method, c.apiURL+path, reqBody)
 	if err != nil {
 		return errors.Wrap(err, "failed to create HTTP request")
 	}
