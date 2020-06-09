@@ -73,6 +73,7 @@ func (c *callerMock) Call(ctx context.Context, method, path string, headers map[
 
 func TestNew(t *testing.T) {
 	c := New(
+		OptApiURL("http://xxx.com"),
 		OptAppID("app_id"),
 		OptEnv(EnvLive),
 		OptPrivateKey("private_key"),
@@ -81,6 +82,9 @@ func TestNew(t *testing.T) {
 
 	if c == nil {
 		t.Errorf("Client is nil")
+	}
+	if c.apiURL != "http://xxx.com/" {
+		t.Errorf("Invalid apiURL: %s", c.apiURL)
 	}
 	if c.appID != "app_id" {
 		t.Errorf("Invalid appID: %s", c.appID)
@@ -96,11 +100,34 @@ func TestNew(t *testing.T) {
 	}
 }
 
+func TestNew_Defaults(t *testing.T) {
+	c := New()
+
+	if c == nil {
+		t.Errorf("Client is nil")
+	}
+	if c.apiURL != "https://api.paymentsos.com/" {
+		t.Errorf("Invalid apiURL: %s", c.apiURL)
+	}
+	if c.appID != "" {
+		t.Errorf("Invalid appID: %s", c.appID)
+	}
+	if c.env != EnvTest {
+		t.Errorf("Invalid env: %s", c.env)
+	}
+	if c.privateKey != "" {
+		t.Errorf("Invalid privateKey: %s", c.privateKey)
+	}
+	if c.httpClient != http.DefaultClient {
+		t.Errorf("Invalid httpClient: %[1]T %#[1]v", c.httpClient)
+	}
+}
+
 func TestCall_WithApiResponse(t *testing.T) {
 	httpClientMock := &httpClientMock{
 		do: func(r *http.Request) (*http.Response, error) {
-			if r.URL.String() != "https://api.paymentsos.com/somepath" {
-				t.Errorf("Invalid request URI: %s", r.RequestURI)
+			if r.URL.String() != "http://xxx.com/somepath" {
+				t.Errorf("Invalid request URL: %s", r.URL.String())
 			}
 			if r.Method != "POST" {
 				t.Errorf("Invalid request method: %s", r.Method)
@@ -137,12 +164,13 @@ func TestCall_WithApiResponse(t *testing.T) {
 		Field string `json:"field"`
 	}{}
 
-	client := Client{
-		httpClient: httpClientMock,
-		appID:      "app_id_test",
-		privateKey: "private_key_test",
-		env:        EnvTest,
-	}
+	client := New(
+		OptApiURL("http://xxx.com"),
+		OptHTTPClient(httpClientMock),
+		OptAppID("app_id_test"),
+		OptPrivateKey("private_key_test"),
+		OptEnv(EnvTest),
+	)
 
 	err := client.Call(
 		context.Background(),
@@ -178,7 +206,7 @@ func TestCall_WithApiError(t *testing.T) {
 		Field: "request_value",
 	}
 
-	client := Client{httpClient: httpClientMock}
+	client := New(OptHTTPClient(httpClientMock))
 
 	err := client.Call(
 		context.Background(),
@@ -217,7 +245,7 @@ func TestCall_WithTransportError(t *testing.T) {
 		Field: "request_value",
 	}
 
-	client := Client{httpClient: httpClientMock}
+	client := New(OptHTTPClient(httpClientMock))
 
 	err := client.Call(
 		context.Background(),
