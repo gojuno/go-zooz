@@ -37,6 +37,7 @@ type AuthorizationParams struct {
 	ThreeDSecureAttributes *ThreeDSecureAttributes `json:"three_d_secure_attributes,omitempty"`
 	Installments           *Installments           `json:"installments,omitempty"`
 	ProviderSpecificData   map[string]interface{}  `json:"provider_specific_data,omitempty"`
+	AdditionalDetails      map[string]interface{}  `json:"additional_details,omitempty"`
 }
 
 // New creates new Authorization entity.
