@@ -37,7 +37,7 @@ type AuthorizationParams struct {
 	ThreeDSecureAttributes   *ThreeDSecureAttributes   `json:"three_d_secure_attributes,omitempty"`
 	Installments             *Installments             `json:"installments,omitempty"`
 	ProviderSpecificData     map[string]interface{}    `json:"provider_specific_data,omitempty"`
-	AdditionalDetails        map[string]interface{}    `json:"additional_details,omitempty"`
+	AdditionalDetails        map[string]string         `json:"additional_details,omitempty"`
 	COFTransactionIndicators *COFTransactionIndicators `json:"cof_transaction_indicators,omitempty"`
 }
 
