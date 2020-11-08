@@ -5,6 +5,7 @@ go:
 
 install:
   - go get github.com/pkg/errors
+  - go get github.com/stretchr/testify/require
 
 script:
   - cd $TRAVIS_BUILD_DIR && go test ./...
