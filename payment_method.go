@@ -14,6 +14,7 @@ type PaymentMethodClient struct {
 
 // PaymentMethod is a entity model.
 type PaymentMethod struct {
+	Href               string            `json:"href"`
 	Type               string            `json:"type"`
 	TokenType          string            `json:"token_type"`
 	PassLuhnValidation bool              `json:"pass_luhn_validation"`
@@ -31,7 +32,9 @@ type PaymentMethod struct {
 	ExpirationDate     string            `json:"expiration_date"`
 	Last4Digits        string            `json:"last_4_digits"`
 	IdentityDocument   *IdentityDocument `json:"identity_document"`
+	ShippingAddress    *Address          `json:"shipping_address"`
 	BillingAddress     *Address          `json:"billing_address"`
+	FingerPrint        string            `json:"fingerprint"`
 }
 
 // IdentityDocument represents some identity document.

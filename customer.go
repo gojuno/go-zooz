@@ -20,6 +20,7 @@ type Customer struct {
 	Created        json.Number     `json:"created"`
 	Modified       json.Number     `json:"modified"`
 	PaymentMethods []PaymentMethod `json:"payment_methods"`
+	Href           string          `json:"href"`
 }
 
 // CustomerParams is a set of params for creating and updating entity.

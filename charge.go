@@ -19,14 +19,17 @@ type Charge struct {
 	Amount                     int64                   `json:"amount"`
 	Created                    json.Number             `json:"created"`
 	ReconciliationID           string                  `json:"reconciliation_id"`
-	PaymentMethod              PaymentMethodHref       `json:"payment_method"`
+	PaymentMethod              PaymentMethod           `json:"payment_method"`
 	ThreeDSecureAttributes     *ThreeDSecureAttributes `json:"three_d_secure_attributes"`
 	Installments               *Installments           `json:"installments"`
 	ProviderData               ProviderData            `json:"provider_data"`
-	ProviderSpecificData       map[string]interface{}  `json:"provider_specific_data"`
+	ProviderSpecificData       DecodedJSON             `json:"provider_specific_data"`
 	OriginatingPurchaseCountry string                  `json:"originating_purchase_country"`
 	IPAddress                  string                  `json:"ip_address"`
 	Redirection                *Redirection            `json:"redirection"`
+	ProviderConfiguration      ProviderConfiguration   `json:"provider_configuration"`
+	AdditionalDetails          AdditionalDetails       `json:"additional_details"`
+	DecisionEngineExecution    DecisionEngineExecution `json:"decision_engine_execution"`
 }
 
 // ChargeParams is a set of params for creating entity.

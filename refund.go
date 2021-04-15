@@ -16,10 +16,12 @@ type RefundClient struct {
 type Refund struct {
 	RefundParams
 
-	ID           string       `json:"id"`
-	Result       Result       `json:"result"`
-	Created      json.Number  `json:"created"`
-	ProviderData ProviderData `json:"provider_data"`
+	ID                    string                `json:"id"`
+	Result                Result                `json:"result"`
+	Created               json.Number           `json:"created"`
+	ProviderData          ProviderData          `json:"provider_data"`
+	AdditionalDetails     AdditionalDetails     `json:"additional_details"`
+	ProviderConfiguration ProviderConfiguration `json:"provider_configuration"`
 }
 
 // RefundParams is a set of params for creating entity.
