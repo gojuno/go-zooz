@@ -97,15 +97,15 @@ type PaymentMethodDetails struct {
 // as defined in your PaymentsOS Control Center account.
 // Note that the object does not include your provider authentication credentials.
 type ProviderConfiguration struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Created     json.Number `json:"created"`
-	Modified    json.Number `json:"modified"`
-	ProviderID  string      `json:"provider_id"`
-	Type        string      `json:"type"`
-	AccountID   string      `json:"account_id"`
-	Href        string      `json:"href"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Created     string `json:"created"`
+	Modified    string `json:"modified"`
+	ProviderID  string `json:"provider_id"`
+	Type        string `json:"type"`
+	AccountID   string `json:"account_id"`
+	Href        string `json:"href"`
 }
 
 // The line items of the order.
@@ -185,7 +185,7 @@ func (d *DecodedJSON) UnmarshalJSON(data []byte) error {
 // Read more about the Decision Engine in the PaymentsOS developer guide.
 type DecisionEngineExecution struct {
 	ID            string         `json:"id"`
-	Created       json.Number    `json:"created"`
+	Created       string         `json:"created"`
 	FlowID        string         `json:"flow_id"`
 	Status        string         `json:"status"`
 	PolicyResults []PolicyResult `json:"policy_results"`
@@ -193,13 +193,13 @@ type DecisionEngineExecution struct {
 
 // Describes the results of the policy rules executed in the flow.
 type PolicyResult struct {
-	Type                  string      `json:"type"`
-	ProviderName          string      `json:"provider_name"`
-	ProviderConfiguration string      `json:"provider_configuration"`
-	Name                  string      `json:"name"`
-	ExecutionTime         json.Number `json:"execution_time"`
-	Transaction           string      `json:"transaction"`
-	Result                string      `json:"result"`
+	Type                  string `json:"type"`
+	ProviderName          string `json:"provider_name"`
+	ProviderConfiguration string `json:"provider_configuration"`
+	Name                  string `json:"name"`
+	ExecutionTime         string `json:"execution_time"`
+	Transaction           string `json:"transaction"`
+	Result                string `json:"result"`
 }
 
 // Level 2 and Level 3 card data provides more information for business, commercial, corporate, purchasing,
