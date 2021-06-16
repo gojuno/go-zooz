@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 // CustomerClient is a client for work with Customer entity.
@@ -50,6 +51,16 @@ func (c *CustomerClient) New(ctx context.Context, idempotencyKey string, params 
 func (c *CustomerClient) Get(ctx context.Context, id string) (*Customer, error) {
 	customer := &Customer{}
 	if err := c.Caller.Call(ctx, "GET", c.customerPath(id), nil, nil, customer); err != nil {
+		return nil, err
+	}
+	return customer, nil
+}
+
+// GetByReference returns Customer entity by reference.
+func (c *CustomerClient) GetByReference(ctx context.Context, reference string) (*Customer, error) {
+	customer := &Customer{}
+	path := customersPath + "?customer_reference=" + url.QueryEscape(reference)
+	if err := c.Caller.Call(ctx, "GET", path, nil, nil, customer); err != nil {
 		return nil, err
 	}
 	return customer, nil
