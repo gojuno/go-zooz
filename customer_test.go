@@ -3,193 +3,205 @@ package zooz
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestCustomerClient_New(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "POST",
-		expectedPath:   "customers",
+		expectedURL:    "/customers",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
-		expectedReqObj: &CustomerParams{
-			CustomerReference: "reference",
-		},
-		returnRespObj: &Customer{
-			ID: "id",
-		},
+		expectedBodyJSON: `{
+			"customer_reference": "reference",
+			"first_name": "john",
+			"last_name": "doe",
+			"email": "john@doe.com"
+		}`,
+		responseBody: `{
+			"id": "id",
+			"customer_reference": "reference",
+			"first_name": "john",
+			"last_name": "doe",
+			"email": "john@doe.com"
+		}`,
 	}
 
-	c := &CustomerClient{Caller: caller}
+	c := &CustomerClient{Caller: New(OptHTTPClient(cli))}
+
+	customerParams := CustomerParams{
+		CustomerReference: "reference",
+		FirstName:         "john",
+		LastName:          "doe",
+		Email:             "john@doe.com",
+	}
 
 	customer, err := c.New(
 		context.Background(),
 		"idempotency_key",
-		&CustomerParams{
-			CustomerReference: "reference",
-		},
+		&customerParams,
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if customer == nil {
-		t.Errorf("Customer is nil")
-	}
-	if customer.ID != "id" {
-		t.Errorf("Customer is not as expected: %+v", customer)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Customer{
+		ID:             "id",
+		CustomerParams: customerParams,
+	}, customer)
 }
 
 func TestCustomerClient_Get(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "GET",
-		expectedPath:   "customers/id",
-		returnRespObj: &Customer{
-			ID: "id",
-		},
+		expectedURL:    "/customers/id",
+		responseBody: `{
+			"id": "id",
+			"customer_reference": "reference",
+			"first_name": "john",
+			"last_name": "doe",
+			"email": "john@doe.com"
+		}`,
 	}
 
-	c := &CustomerClient{Caller: caller}
+	c := &CustomerClient{Caller: New(OptHTTPClient(cli))}
 
 	customer, err := c.Get(
 		context.Background(),
 		"id",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if customer == nil {
-		t.Errorf("Customer is nil")
-	}
-	if customer.ID != "id" {
-		t.Errorf("Customer is not as expected: %+v", customer)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Customer{
+		ID: "id",
+		CustomerParams: CustomerParams{
+			CustomerReference: "reference",
+			FirstName:         "john",
+			LastName:          "doe",
+			Email:             "john@doe.com",
+		},
+	}, customer)
 }
 
 func TestCustomerClient_GetByReference(t *testing.T) {
 	t.Run("positive", func(t *testing.T) {
-		caller := &callerMock{
+		cli := &httpClientMock{
 			t:              t,
 			expectedMethod: "GET",
-			expectedPath:   "customers?customer_reference=john+doe%3F",
-			returnRespObj: &[]*Customer{{
-				ID: "id",
-			}},
+			expectedURL:    "/customers?customer_reference=john+doe%3F",
+			responseBody: `[{
+        		"id": "id",
+        		"customer_reference": "john doe?",
+				"first_name": "john",
+				"last_name": "doe",
+				"email": "john@doe.com"
+    		}]`,
 		}
 
-		c := &CustomerClient{Caller: caller}
+		c := &CustomerClient{Caller: New(OptHTTPClient(cli))}
 
 		customer, err := c.GetByReference(context.Background(), "john doe?")
 
-		if err != nil {
-			t.Fatal("Error must be nil")
-		}
-		if customer == nil {
-			t.Fatal("Customer is nil")
-		}
-		if customer.ID != "id" {
-			t.Errorf("Customer is not as expected: %+v", customer)
-		}
+		require.NoError(t, err)
+		require.Equal(t, &Customer{
+			ID: "id",
+			CustomerParams: CustomerParams{
+				CustomerReference: "john doe?",
+				FirstName:         "john",
+				LastName:          "doe",
+				Email:             "john@doe.com",
+			},
+		}, customer)
 	})
+
 	t.Run("empty customer list", func(t *testing.T) {
-		caller := &callerMock{
+		cli := &httpClientMock{
 			t:              t,
 			expectedMethod: "GET",
-			expectedPath:   "customers?customer_reference=john+doe%3F",
-			returnRespObj:  &[]*Customer{},
+			expectedURL:    "/customers?customer_reference=john",
+			responseBody:   `[]`,
 		}
 
-		c := &CustomerClient{Caller: caller}
+		c := &CustomerClient{Caller: New(OptHTTPClient(cli))}
 
-		customer, err := c.GetByReference(context.Background(), "john doe?")
-
-		if err == nil {
-			t.Fatal("Error must be not nil")
-		}
-		if err.Error() != "PaymentsOS returned empty array" {
-			t.Fatalf("Error is not as expected: %+v", err)
-		}
-		if customer != nil {
-			t.Fatal("Customer is not nil")
-		}
+		customer, err := c.GetByReference(context.Background(), "john")
+		require.EqualError(t, err, "PaymentsOS returned empty array")
+		require.Nil(t, customer)
 	})
+
 	t.Run("more than one item in customer list", func(t *testing.T) {
-		caller := &callerMock{
+		cli := &httpClientMock{
 			t:              t,
 			expectedMethod: "GET",
-			expectedPath:   "customers?customer_reference=john+doe%3F",
-			returnRespObj:  &[]*Customer{{}, {}},
+			expectedURL:    "/customers?customer_reference=john",
+			responseBody:   `[{}, {}]`,
 		}
 
-		c := &CustomerClient{Caller: caller}
+		c := &CustomerClient{Caller: New(OptHTTPClient(cli))}
 
-		customer, err := c.GetByReference(context.Background(), "john doe?")
-
-		if err == nil {
-			t.Fatal("Error must be not nil")
-		}
-		if err.Error() != "PaymentsOS returned array with more than one item" {
-			t.Fatalf("Error is not as expected: %+v", err)
-		}
-		if customer != nil {
-			t.Fatal("Customer is not nil")
-		}
+		customer, err := c.GetByReference(context.Background(), "john")
+		require.EqualError(t, err, "PaymentsOS returned array with more than one item")
+		require.Nil(t, customer)
 	})
 }
 
 func TestCustomerClient_Update(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "PUT",
-		expectedPath:   "customers/id",
-		expectedReqObj: &CustomerParams{
-			CustomerReference: "reference",
-		},
-		returnRespObj: &Customer{
-			ID: "id",
-		},
+		expectedURL:    "/customers/id",
+		expectedBodyJSON: `{
+			"customer_reference": "reference",
+			"first_name": "john",
+			"last_name": "doe",
+			"email": "john@doe.com"
+		}`,
+		responseBody: `{
+			"id": "id",
+			"customer_reference": "reference",
+			"first_name": "john",
+			"last_name": "doe",
+			"email": "john@doe.com"
+		}`,
 	}
 
-	c := &CustomerClient{Caller: caller}
+	c := &CustomerClient{Caller: New(OptHTTPClient(cli))}
+
+	customerParams := CustomerParams{
+		CustomerReference: "reference",
+		FirstName:         "john",
+		LastName:          "doe",
+		Email:             "john@doe.com",
+	}
 
 	customer, err := c.Update(
 		context.Background(),
 		"id",
-		&CustomerParams{
-			CustomerReference: "reference",
-		},
+		&customerParams,
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if customer == nil {
-		t.Errorf("Customer is nil")
-	}
-	if customer.ID != "id" {
-		t.Errorf("Customer is not as expected: %+v", customer)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Customer{
+		ID:             "id",
+		CustomerParams: customerParams,
+	}, customer)
 }
 
 func TestCustomerClient_Delete(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "DELETE",
-		expectedPath:   "customers/id",
+		expectedURL:    "/customers/id",
 	}
 
-	c := &CustomerClient{Caller: caller}
+	c := &CustomerClient{Caller: New(OptHTTPClient(cli))}
 
 	err := c.Delete(
 		context.Background(),
 		"id",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
+	require.NoError(t, err)
 }

@@ -3,20 +3,21 @@ package zooz
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRedirectionClient_Get(t *testing.T) {
-	caller := &callerMock{
-		t:               t,
-		expectedMethod:  "GET",
-		expectedPath:    "payments/payment_id/redirections/id",
-		expectedHeaders: map[string]string{},
-		returnRespObj: &Redirection{
-			ID: "id",
-		},
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "GET",
+		expectedURL:    "/payments/payment_id/redirections/id",
+		responseBody: `{
+			"id": "id"
+		}`,
 	}
 
-	c := &RedirectionClient{Caller: caller}
+	c := &RedirectionClient{Caller: New(OptHTTPClient(cli))}
 
 	redirection, err := c.Get(
 		context.Background(),
@@ -24,53 +25,41 @@ func TestRedirectionClient_Get(t *testing.T) {
 		"id",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if redirection == nil {
-		t.Errorf("Redirection is nil")
-	}
-	if redirection.ID != "id" {
-		t.Errorf("Redirection is not as expected: %+v", redirection)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Redirection{
+		ID: "id",
+	}, redirection)
 }
 
 func TestRedirectionClient_GetList(t *testing.T) {
-	caller := &callerMock{
-		t:               t,
-		expectedMethod:  "GET",
-		expectedPath:    "payments/payment_id/redirections",
-		expectedHeaders: map[string]string{},
-		returnRespObj: &[]Redirection{
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "GET",
+		expectedURL:    "/payments/payment_id/redirections",
+		responseBody: `[
 			{
-				ID: "id1",
+				"id": "id1"
 			},
 			{
-				ID: "id2",
-			},
-		},
+				"id": "id2"
+			}
+		]`,
 	}
 
-	c := &RedirectionClient{Caller: caller}
+	c := &RedirectionClient{Caller: New(OptHTTPClient(cli))}
 
 	redirections, err := c.GetList(
 		context.Background(),
 		"payment_id",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if redirections == nil {
-		t.Errorf("Redirections is nil")
-	}
-	if len(redirections) != 2 {
-		t.Errorf("Count of redirections is wrong: %d", len(redirections))
-	}
-	if redirections[0].ID != "id1" {
-		t.Errorf("Redirection is not as expected: %+v", redirections[0])
-	}
-	if redirections[1].ID != "id2" {
-		t.Errorf("Redirection is not as expected: %+v", redirections[1])
-	}
+	require.NoError(t, err)
+	require.Equal(t, []Redirection{
+		{
+			ID: "id1",
+		},
+		{
+			ID: "id2",
+		},
+	}, redirections)
 }

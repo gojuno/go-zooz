@@ -3,25 +3,27 @@ package zooz
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestCaptureClient_New(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "POST",
-		expectedPath:   "payments/payment_id/captures",
+		expectedURL:    "/payments/payment_id/captures",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
-		expectedReqObj: &CaptureParams{
-			ReconciliationID: "reconciliation_id",
-		},
-		returnRespObj: &Capture{
-			ID: "id",
-		},
+		expectedBodyJSON: `{
+			"reconciliation_id": "reconciliation_id"
+		}`,
+		responseBody: `{
+			"id": "id"
+		}`,
 	}
 
-	c := &CaptureClient{Caller: caller}
+	c := &CaptureClient{Caller: New(OptHTTPClient(cli))}
 
 	capture, err := c.New(
 		context.Background(),
@@ -32,29 +34,23 @@ func TestCaptureClient_New(t *testing.T) {
 		},
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if capture == nil {
-		t.Errorf("Capture is nil")
-	}
-	if capture.ID != "id" {
-		t.Errorf("Capture is not as expected: %+v", capture)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Capture{
+		ID: "id",
+	}, capture)
 }
 
 func TestCaptureClient_Get(t *testing.T) {
-	caller := &callerMock{
-		t:               t,
-		expectedMethod:  "GET",
-		expectedPath:    "payments/payment_id/captures/id",
-		expectedHeaders: map[string]string{},
-		returnRespObj: &Capture{
-			ID: "id",
-		},
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "GET",
+		expectedURL:    "/payments/payment_id/captures/id",
+		responseBody: `{
+			"id": "id"
+		}`,
 	}
 
-	c := &CaptureClient{Caller: caller}
+	c := &CaptureClient{Caller: New(OptHTTPClient(cli))}
 
 	capture, err := c.Get(
 		context.Background(),
@@ -62,53 +58,41 @@ func TestCaptureClient_Get(t *testing.T) {
 		"id",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if capture == nil {
-		t.Errorf("Capture is nil")
-	}
-	if capture.ID != "id" {
-		t.Errorf("Capture is not as expected: %+v", capture)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Capture{
+		ID: "id",
+	}, capture)
 }
 
 func TestCaptureClient_GetList(t *testing.T) {
-	caller := &callerMock{
-		t:               t,
-		expectedMethod:  "GET",
-		expectedPath:    "payments/payment_id/captures",
-		expectedHeaders: map[string]string{},
-		returnRespObj: &[]Capture{
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "GET",
+		expectedURL:    "/payments/payment_id/captures",
+		responseBody: `[
 			{
-				ID: "id1",
+				"id": "id1"
 			},
 			{
-				ID: "id2",
-			},
-		},
+				"id": "id2"
+			}
+		]`,
 	}
 
-	c := &CaptureClient{Caller: caller}
+	c := &CaptureClient{Caller: New(OptHTTPClient(cli))}
 
 	captures, err := c.GetList(
 		context.Background(),
 		"payment_id",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if captures == nil {
-		t.Errorf("Captures is nil")
-	}
-	if len(captures) != 2 {
-		t.Errorf("Count of captures is wrong: %d", len(captures))
-	}
-	if captures[0].ID != "id1" {
-		t.Errorf("Capture is not as expected: %+v", captures[0])
-	}
-	if captures[1].ID != "id2" {
-		t.Errorf("Capture is not as expected: %+v", captures[1])
-	}
+	require.NoError(t, err)
+	require.Equal(t, []Capture{
+		{
+			ID: "id1",
+		},
+		{
+			ID: "id2",
+		},
+	}, captures)
 }

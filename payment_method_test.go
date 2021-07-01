@@ -3,107 +3,91 @@ package zooz
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestPaymentMethodClient_New(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "POST",
-		expectedPath:   "customers/customer_id/payment-methods/token",
+		expectedURL:    "/customers/customer_id/payment-methods/token1",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
-		returnRespObj: &PaymentMethod{
-			Token: "token",
-		},
+		responseBody: `{
+			"token": "token1"
+		}`,
 	}
 
-	c := &PaymentMethodClient{Caller: caller}
+	c := &PaymentMethodClient{Caller: New(OptHTTPClient(cli))}
 
 	paymentMethod, err := c.New(
 		context.Background(),
 		"idempotency_key",
 		"customer_id",
-		"token",
+		"token1",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if paymentMethod == nil {
-		t.Errorf("PaymentMethod is nil")
-	}
-	if paymentMethod.Token != "token" {
-		t.Errorf("PaymentMethod is not as expected: %+v", paymentMethod)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &PaymentMethod{
+		Token: "token1",
+	}, paymentMethod)
 }
 
 func TestPaymentMethodClient_Get(t *testing.T) {
-	caller := &callerMock{
-		t:               t,
-		expectedMethod:  "GET",
-		expectedPath:    "customers/customer_id/payment-methods/token",
-		expectedHeaders: map[string]string{},
-		returnRespObj: &PaymentMethod{
-			Token: "token",
-		},
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "GET",
+		expectedURL:    "/customers/customer_id/payment-methods/token1",
+		responseBody: `{
+			"token": "token1"
+		}`,
 	}
 
-	c := &PaymentMethodClient{Caller: caller}
+	c := &PaymentMethodClient{Caller: New(OptHTTPClient(cli))}
 
 	paymentMethod, err := c.Get(
 		context.Background(),
 		"customer_id",
-		"token",
+		"token1",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if paymentMethod == nil {
-		t.Errorf("PaymentMethod is nil")
-	}
-	if paymentMethod.Token != "token" {
-		t.Errorf("PaymentMethod is not as expected: %+v", paymentMethod)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &PaymentMethod{
+		Token: "token1",
+	}, paymentMethod)
 }
 
 func TestPaymentMethodClient_GetList(t *testing.T) {
-	caller := &callerMock{
-		t:               t,
-		expectedMethod:  "GET",
-		expectedPath:    "customers/customer_id/payment-methods",
-		expectedHeaders: map[string]string{},
-		returnRespObj: &[]PaymentMethod{
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "GET",
+		expectedURL:    "/customers/customer_id/payment-methods",
+		responseBody: `[
 			{
-				Token: "token1",
+				"token": "token1"
 			},
 			{
-				Token: "token2",
-			},
-		},
+				"token": "token2"
+			}
+		]`,
 	}
 
-	c := &PaymentMethodClient{Caller: caller}
+	c := &PaymentMethodClient{Caller: New(OptHTTPClient(cli))}
 
 	paymentMethods, err := c.GetList(
 		context.Background(),
 		"customer_id",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if paymentMethods == nil {
-		t.Errorf("PaymentMethods is nil")
-	}
-	if len(paymentMethods) != 2 {
-		t.Errorf("Count of paymentMethods is wrong: %d", len(paymentMethods))
-	}
-	if paymentMethods[0].Token != "token1" {
-		t.Errorf("PaymentMethod is not as expected: %+v", paymentMethods[0])
-	}
-	if paymentMethods[1].Token != "token2" {
-		t.Errorf("PaymentMethod is not as expected: %+v", paymentMethods[1])
-	}
+	require.NoError(t, err)
+	require.Equal(t, []PaymentMethod{
+		{
+			Token: "token1",
+		},
+		{
+			Token: "token2",
+		},
+	}, paymentMethods)
 }

@@ -3,30 +3,36 @@ package zooz
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestAuthorizationClient_New(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "POST",
-		expectedPath:   "payments/payment_id/authorizations",
+		expectedURL:    "/payments/payment_id/authorizations",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey:  "idempotency_key",
 			headerClientIPAddress: "ip",
 			headerClientUserAgent: "ua",
 		},
-		expectedReqObj: &AuthorizationParams{
-			PaymentMethod: PaymentMethodDetails{
-				Type:  "tokenized",
-				Token: "token",
-			},
-		},
-		returnRespObj: &Authorization{
-			ID: "id",
-		},
+		expectedBodyJSON: `{
+			"payment_method": {
+				"type": "tokenized",
+				"token": "token"
+			}
+		}`,
+		responseBody: `{
+			"id": "id",
+			"payment_method": {
+				"type": "tokenized",
+				"token": "token"
+			}
+		}`,
 	}
 
-	c := &AuthorizationClient{Caller: caller}
+	c := &AuthorizationClient{Caller: New(OptHTTPClient(cli))}
 
 	authorization, err := c.New(
 		context.Background(),
@@ -44,29 +50,27 @@ func TestAuthorizationClient_New(t *testing.T) {
 		},
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if authorization == nil {
-		t.Errorf("Authorization is nil")
-	}
-	if authorization.ID != "id" {
-		t.Errorf("Authorization is not as expected: %+v", authorization)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Authorization{
+		ID: "id",
+		PaymentMethod: PaymentMethod{
+			Type:  "tokenized",
+			Token: "token",
+		},
+	}, authorization)
 }
 
 func TestAuthorizationClient_Get(t *testing.T) {
-	caller := &callerMock{
-		t:               t,
-		expectedMethod:  "GET",
-		expectedPath:    "payments/payment_id/authorizations/id",
-		expectedHeaders: map[string]string{},
-		returnRespObj: &Authorization{
-			ID: "id",
-		},
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "GET",
+		expectedURL:    "/payments/payment_id/authorizations/id",
+		responseBody: `{
+			"id": "id"
+		}`,
 	}
 
-	c := &AuthorizationClient{Caller: caller}
+	c := &AuthorizationClient{Caller: New(OptHTTPClient(cli))}
 
 	authorization, err := c.Get(
 		context.Background(),
@@ -74,53 +78,41 @@ func TestAuthorizationClient_Get(t *testing.T) {
 		"id",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if authorization == nil {
-		t.Errorf("Authorization is nil")
-	}
-	if authorization.ID != "id" {
-		t.Errorf("Authorization is not as expected: %+v", authorization)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Authorization{
+		ID: "id",
+	}, authorization)
 }
 
 func TestAuthorizationClient_GetList(t *testing.T) {
-	caller := &callerMock{
-		t:               t,
-		expectedMethod:  "GET",
-		expectedPath:    "payments/payment_id/authorizations",
-		expectedHeaders: map[string]string{},
-		returnRespObj: &[]Authorization{
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "GET",
+		expectedURL:    "/payments/payment_id/authorizations",
+		responseBody: `[
 			{
-				ID: "id1",
+				"id": "id1"
 			},
 			{
-				ID: "id2",
-			},
-		},
+				"id": "id2"
+			}
+		]`,
 	}
 
-	c := &AuthorizationClient{Caller: caller}
+	c := &AuthorizationClient{Caller: New(OptHTTPClient(cli))}
 
 	authorizations, err := c.GetList(
 		context.Background(),
 		"payment_id",
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if authorizations == nil {
-		t.Errorf("Authorizations is nil")
-	}
-	if len(authorizations) != 2 {
-		t.Errorf("Count of authorizations is wrong: %d", len(authorizations))
-	}
-	if authorizations[0].ID != "id1" {
-		t.Errorf("Authorization is not as expected: %+v", authorizations[0])
-	}
-	if authorizations[1].ID != "id2" {
-		t.Errorf("Authorization is not as expected: %+v", authorizations[1])
-	}
+	require.NoError(t, err)
+	require.Equal(t, []Authorization{
+		{
+			ID: "id1",
+		},
+		{
+			ID: "id2",
+		},
+	}, authorizations)
 }

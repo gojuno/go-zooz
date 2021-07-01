@@ -3,56 +3,60 @@ package zooz
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestPaymentClient_New(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "POST",
-		expectedPath:   "payments",
+		expectedURL:    "/payments",
 		expectedHeaders: map[string]string{
 			headerIdempotencyKey: "idempotency_key",
 		},
-		expectedReqObj: &PaymentParams{
-			Amount: 100.0,
-		},
-		returnRespObj: &Payment{
-			ID: "id",
-		},
+		expectedBodyJSON: `{
+			"amount": 100,
+			"currency": "RUB"
+		}`,
+		responseBody: `{
+			"id": "id",
+			"amount": 100,
+			"currency": "RUB"
+		}`,
 	}
 
-	c := &PaymentClient{Caller: caller}
+	c := &PaymentClient{Caller: New(OptHTTPClient(cli))}
+
+	paymentParams := PaymentParams{
+		Amount:   100,
+		Currency: "RUB",
+	}
 
 	payment, err := c.New(
 		context.Background(),
 		"idempotency_key",
-		&PaymentParams{
-			Amount: 100.0,
-		},
+		&paymentParams,
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if payment == nil {
-		t.Errorf("Payment is nil")
-	}
-	if payment.ID != "id" {
-		t.Errorf("Payment is not as expected: %+v", payment)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Payment{
+		ID:            "id",
+		PaymentParams: paymentParams,
+	}, payment)
 }
 
 func TestPaymentClient_Get(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "GET",
-		expectedPath:   "payments/id?expand=authorizations&expand=captures",
-		returnRespObj: &Payment{
-			ID: "id",
-		},
+		expectedURL:    "/payments/id?expand=authorizations&expand=captures",
+		responseBody: `{
+			"id": "id"
+		}`,
 	}
 
-	c := &PaymentClient{Caller: caller}
+	c := &PaymentClient{Caller: New(OptHTTPClient(cli))}
 
 	payment, err := c.Get(
 		context.Background(),
@@ -61,47 +65,44 @@ func TestPaymentClient_Get(t *testing.T) {
 		PaymentExpandCaptures,
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if payment == nil {
-		t.Errorf("Payment is nil")
-	}
-	if payment.ID != "id" {
-		t.Errorf("Payment is not as expected: %+v", payment)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Payment{
+		ID: "id",
+	}, payment)
 }
 
 func TestPaymentClient_Update(t *testing.T) {
-	caller := &callerMock{
+	cli := &httpClientMock{
 		t:              t,
 		expectedMethod: "PUT",
-		expectedPath:   "payments/id",
-		expectedReqObj: &PaymentParams{
-			Amount: 100.0,
-		},
-		returnRespObj: &Payment{
-			ID: "id",
-		},
+		expectedURL:    "/payments/id",
+		expectedBodyJSON: `{
+			"amount": 100,
+			"currency": "RUB"
+		}`,
+		responseBody: `{
+			"id": "id",
+			"amount": 100,
+			"currency": "RUB"
+		}`,
 	}
 
-	c := &PaymentClient{Caller: caller}
+	c := &PaymentClient{Caller: New(OptHTTPClient(cli))}
+
+	paymentParams := PaymentParams{
+		Amount:   100,
+		Currency: "RUB",
+	}
 
 	payment, err := c.Update(
 		context.Background(),
 		"id",
-		&PaymentParams{
-			Amount: 100.0,
-		},
+		&paymentParams,
 	)
 
-	if err != nil {
-		t.Error("Error must be nil")
-	}
-	if payment == nil {
-		t.Errorf("Payment is nil")
-	}
-	if payment.ID != "id" {
-		t.Errorf("Payment is not as expected: %+v", payment)
-	}
+	require.NoError(t, err)
+	require.Equal(t, &Payment{
+		ID:            "id",
+		PaymentParams: paymentParams,
+	}, payment)
 }

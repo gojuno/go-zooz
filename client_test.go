@@ -3,72 +3,63 @@ package zooz
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"testing"
 
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/require"
 )
 
 type httpClientMock struct {
-	do func(r *http.Request) (*http.Response, error)
+	t *testing.T
+
+	expectedMethod   string
+	expectedURL      string            // can be relative i.e. "/somepath?k=v", in this case will be prepended with ApiURL
+	expectedHeaders  map[string]string // headers expected to be included in request
+	expectedBodyJSON string
+
+	responseCode int
+	responseBody string
+	error        error
+}
+
+func (c *httpClientMock) Do(r *http.Request) (*http.Response, error) {
+	require.Equal(c.t, c.expectedMethod, r.Method)
+	if len(c.expectedURL) > 0 && c.expectedURL[0] == '/' {
+		c.expectedURL = ApiURL + c.expectedURL
+	}
+	require.Equal(c.t, c.expectedURL, r.URL.String())
+
+	for k, v := range c.expectedHeaders {
+		require.Equal(c.t, v, r.Header.Get(k))
+	}
+
+	var body []byte
+	if r.Body != nil {
+		var err error
+		body, err = ioutil.ReadAll(r.Body)
+		require.NoError(c.t, err)
+		defer func() { _ = r.Body.Close() }()
+	}
+	if c.expectedBodyJSON != "" {
+		require.JSONEq(c.t, c.expectedBodyJSON, string(body))
+	} else {
+		require.Empty(c.t, body)
+	}
+
+	if c.error != nil {
+		return nil, c.error
+	}
+
+	return &http.Response{
+		StatusCode: c.responseCode,
+		Body:       ioutil.NopCloser(bytes.NewBufferString(c.responseBody)),
+	}, nil
 }
 
 type request struct {
 	Field string `json:"field"`
-}
-
-type callerMock struct {
-	t               *testing.T
-	expectedMethod  string
-	expectedPath    string
-	expectedHeaders map[string]string
-	expectedReqObj  interface{}
-	returnRespObj   interface{}
-	returnError     error
-}
-
-func (c *httpClientMock) Do(r *http.Request) (*http.Response, error) {
-	return c.do(r)
-}
-
-func (c *callerMock) Call(ctx context.Context, method, path string, headers map[string]string, reqObj interface{}, respObj interface{}) error {
-	if method != c.expectedMethod {
-		c.t.Errorf("Invalid method: %s", method)
-	}
-	if path != c.expectedPath {
-		c.t.Errorf("Invalid path: %s", path)
-	}
-	for k, v := range headers {
-		if v != c.expectedHeaders[k] {
-			c.t.Errorf("Invalid header %s: %s", k, v)
-		}
-	}
-	if len(headers) != len(c.expectedHeaders) {
-		c.t.Errorf("Invalid headers count: %d", len(headers))
-	}
-
-	reqBody, err := json.Marshal(reqObj)
-	if err != nil {
-		c.t.Fatalf("Marshal error: %s", err)
-	}
-
-	expectedReqBody, err := json.Marshal(c.expectedReqObj)
-	if err != nil {
-		c.t.Fatalf("Marshal error: %s", err)
-	}
-
-	if string(reqBody) != string(expectedReqBody) {
-		c.t.Errorf("Invalid request body: %s", string(reqBody))
-	}
-
-	if c.returnRespObj != nil {
-		reflect.ValueOf(respObj).Elem().Set(reflect.ValueOf(c.returnRespObj).Elem())
-	}
-
-	return c.returnError
 }
 
 func TestNew(t *testing.T) {
@@ -125,35 +116,23 @@ func TestNew_Defaults(t *testing.T) {
 
 func TestCall_WithApiResponse(t *testing.T) {
 	httpClientMock := &httpClientMock{
-		do: func(r *http.Request) (*http.Response, error) {
-			if r.URL.String() != "http://xxx.com/somepath" {
-				t.Errorf("Invalid request URL: %s", r.URL.String())
-			}
-			if r.Method != "POST" {
-				t.Errorf("Invalid request method: %s", r.Method)
-			}
-			if r.Header.Get(headerEnv) != string(EnvTest) {
-				t.Errorf("Invalid request env: %s", r.Header.Get(headerEnv))
-			}
-			if r.Header.Get(headerAppID) != "app_id_test" {
-				t.Errorf("Invalid request app ID: %s", r.Header.Get(headerAppID))
-			}
-			if r.Header.Get(headerPrivateKey) != "private_key_test" {
-				t.Errorf("Invalid request private key: %s", r.Header.Get(headerPrivateKey))
-			}
-			if r.Header.Get("test-header") != "test-header-value" {
-				t.Errorf("Invalid request custom header: %s", r.Header.Get("test-header"))
-			}
-			body, _ := ioutil.ReadAll(r.Body)
-			if string(body) != `{"field":"request_value"}` {
-				t.Errorf("Invalid request body: %s", string(body))
-			}
+		t:              t,
+		expectedMethod: "POST",
+		expectedURL:    "http://xxx.com/somepath?testk=testv",
 
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       ioutil.NopCloser(bytes.NewBufferString(`{"field":"response_value"}`)),
-			}, nil
+		expectedHeaders: map[string]string{
+			headerAPIVersion: "1.2.0",
+			headerEnv:        "test",
+			headerAppID:      "app_id_test",
+			headerPrivateKey: "private_key_test",
+			"Content-Type":   "application/json",
+			"test-header":    "test-header-value",
 		},
+
+		expectedBodyJSON: `{"field":"request_value"}`,
+
+		responseCode: http.StatusOK,
+		responseBody: `{"field":"response_value"}`,
 	}
 
 	req := request{
@@ -175,31 +154,26 @@ func TestCall_WithApiResponse(t *testing.T) {
 	err := client.Call(
 		context.Background(),
 		"POST",
-		"somepath",
+		"somepath?testk=testv",
 		map[string]string{
 			"test-header": "test-header-value",
 		},
 		&req,
 		&response,
 	)
-
-	if err != nil {
-		t.Errorf("Call returned error: %v", err)
-	}
-
-	if response.Field != "response_value" {
-		t.Errorf("Response is invalid: %+v", response)
-	}
+	require.NoError(t, err)
+	require.Equal(t, "response_value", response.Field)
 }
 
 func TestCall_WithApiError(t *testing.T) {
 	httpClientMock := &httpClientMock{
-		do: func(r *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: http.StatusBadRequest,
-				Body:       ioutil.NopCloser(bytes.NewBufferString(`{"category":"category_test"}`)),
-			}, nil
-		},
+		t:                t,
+		expectedMethod:   "POST",
+		expectedURL:      "/somepath",
+		expectedBodyJSON: `{"field":"request_value"}`,
+
+		responseCode: http.StatusBadRequest,
+		responseBody: `{"category":"category_test"}`,
 	}
 
 	req := request{
@@ -212,33 +186,27 @@ func TestCall_WithApiError(t *testing.T) {
 		context.Background(),
 		"POST",
 		"somepath",
-		map[string]string{
-			"test-header": "test-header-value",
-		},
+		nil,
 		&req,
 		nil,
 	)
 
-	if err == nil {
-		t.Error("Call didn't return error")
-	}
-	if zoozErr, ok := err.(*Error); ok {
-		if zoozErr.StatusCode != http.StatusBadRequest {
-			t.Errorf("Invalid error status code: %d", zoozErr.StatusCode)
-		}
-		if zoozErr.APIError.Category != "category_test" {
-			t.Errorf("Invalid API error category: %s", zoozErr.APIError.Category)
-		}
-	} else {
-		t.Errorf("Call return invalid error type: %T", err)
-	}
+	require.Error(t, err)
+	require.Equal(t, &Error{
+		StatusCode: http.StatusBadRequest,
+		APIError: APIError{
+			Category: "category_test",
+		},
+	}, err)
 }
 
 func TestCall_WithTransportError(t *testing.T) {
 	httpClientMock := &httpClientMock{
-		do: func(r *http.Request) (*http.Response, error) {
-			return nil, errors.New("do_error")
-		},
+		t:                t,
+		expectedMethod:   "POST",
+		expectedURL:      "/somepath",
+		expectedBodyJSON: `{"field":"request_value"}`,
+		error:            errors.New("do_error"),
 	}
 
 	req := request{
@@ -251,17 +219,11 @@ func TestCall_WithTransportError(t *testing.T) {
 		context.Background(),
 		"POST",
 		"somepath",
-		map[string]string{
-			"test-header": "test-header-value",
-		},
+		nil,
 		&req,
 		nil,
 	)
 
-	if err == nil {
-		t.Error("Call didn't return error")
-	}
-	if errors.Cause(err).Error() != "do_error" {
-		t.Errorf("Invalid error cause: %v", errors.Cause(err))
-	}
+	require.Error(t, err)
+	require.EqualError(t, err, "failed to do request: do_error")
 }
