@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 // CustomerClient is a client for work with Customer entity.
@@ -58,12 +60,18 @@ func (c *CustomerClient) Get(ctx context.Context, id string) (*Customer, error) 
 
 // GetByReference returns Customer entity by reference.
 func (c *CustomerClient) GetByReference(ctx context.Context, reference string) (*Customer, error) {
-	customer := &Customer{}
+	var customers []*Customer
 	path := customersPath + "?customer_reference=" + url.QueryEscape(reference)
-	if err := c.Caller.Call(ctx, "GET", path, nil, nil, customer); err != nil {
+	if err := c.Caller.Call(ctx, "GET", path, nil, nil, &customers); err != nil {
 		return nil, err
 	}
-	return customer, nil
+	if len(customers) == 0 { // Should not happen. If customer is not found PaymentsOS returns 404.
+		return nil, errors.New("PaymentsOS returned empty array")
+	}
+	if len(customers) > 1 {
+		return nil, errors.New("PaymentsOS returned array with more than one item")
+	}
+	return customers[0], nil
 }
 
 // Update updates Customer entity with given params and return updated Customer entity.

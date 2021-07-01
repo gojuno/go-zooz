@@ -71,28 +71,74 @@ func TestCustomerClient_Get(t *testing.T) {
 }
 
 func TestCustomerClient_GetByReference(t *testing.T) {
-	caller := &callerMock{
-		t:              t,
-		expectedMethod: "GET",
-		expectedPath:   "customers?customer_reference=john+doe%3F",
-		returnRespObj: &Customer{
-			ID: "id",
-		},
-	}
+	t.Run("positive", func(t *testing.T) {
+		caller := &callerMock{
+			t:              t,
+			expectedMethod: "GET",
+			expectedPath:   "customers?customer_reference=john+doe%3F",
+			returnRespObj: &[]*Customer{{
+				ID: "id",
+			}},
+		}
 
-	c := &CustomerClient{Caller: caller}
+		c := &CustomerClient{Caller: caller}
 
-	customer, err := c.GetByReference(context.Background(), "john doe?")
+		customer, err := c.GetByReference(context.Background(), "john doe?")
 
-	if err != nil {
-		t.Fatal("Error must be nil")
-	}
-	if customer == nil {
-		t.Fatal("Customer is nil")
-	}
-	if customer.ID != "id" {
-		t.Errorf("Customer is not as expected: %+v", customer)
-	}
+		if err != nil {
+			t.Fatal("Error must be nil")
+		}
+		if customer == nil {
+			t.Fatal("Customer is nil")
+		}
+		if customer.ID != "id" {
+			t.Errorf("Customer is not as expected: %+v", customer)
+		}
+	})
+	t.Run("empty customer list", func(t *testing.T) {
+		caller := &callerMock{
+			t:              t,
+			expectedMethod: "GET",
+			expectedPath:   "customers?customer_reference=john+doe%3F",
+			returnRespObj:  &[]*Customer{},
+		}
+
+		c := &CustomerClient{Caller: caller}
+
+		customer, err := c.GetByReference(context.Background(), "john doe?")
+
+		if err == nil {
+			t.Fatal("Error must be not nil")
+		}
+		if err.Error() != "PaymentsOS returned empty array" {
+			t.Fatalf("Error is not as expected: %+v", err)
+		}
+		if customer != nil {
+			t.Fatal("Customer is not nil")
+		}
+	})
+	t.Run("more than one item in customer list", func(t *testing.T) {
+		caller := &callerMock{
+			t:              t,
+			expectedMethod: "GET",
+			expectedPath:   "customers?customer_reference=john+doe%3F",
+			returnRespObj:  &[]*Customer{{}, {}},
+		}
+
+		c := &CustomerClient{Caller: caller}
+
+		customer, err := c.GetByReference(context.Background(), "john doe?")
+
+		if err == nil {
+			t.Fatal("Error must be not nil")
+		}
+		if err.Error() != "PaymentsOS returned array with more than one item" {
+			t.Fatalf("Error is not as expected: %+v", err)
+		}
+		if customer != nil {
+			t.Fatal("Customer is not nil")
+		}
+	})
 }
 
 func TestCustomerClient_Update(t *testing.T) {

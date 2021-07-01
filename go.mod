@@ -9,3 +9,4 @@ require (
 )
 
 retract v1.3.1 // Contains errors with deserialization
+retract v1.4.0 // Mistake in get customer by reference response format
