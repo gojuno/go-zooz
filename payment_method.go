@@ -70,6 +70,11 @@ func (c *PaymentMethodClient) GetList(ctx context.Context, customerID string) ([
 	return paymentMethods, nil
 }
 
+// Delete customer PaymentMethod by token.
+func (c *PaymentMethodClient) Delete(ctx context.Context, customerID string, token string) error {
+	return c.Caller.Call(ctx, "DELETE", c.tokenPath(customerID, token), nil, nil, nil)
+}
+
 func (c *PaymentMethodClient) paymentMethodsPath(customerID string) string {
 	return fmt.Sprintf("%s/%s/payment-methods", customersPath, customerID)
 }

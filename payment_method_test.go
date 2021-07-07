@@ -91,3 +91,21 @@ func TestPaymentMethodClient_GetList(t *testing.T) {
 		},
 	}, paymentMethods)
 }
+
+func TestPaymentMethodClient_Delete(t *testing.T) {
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "DELETE",
+		expectedURL:    "/customers/customer_id/payment-methods/token1",
+	}
+
+	c := &PaymentMethodClient{Caller: New(OptHTTPClient(cli))}
+
+	err := c.Delete(
+		context.Background(),
+		"customer_id",
+		"token1",
+	)
+
+	require.NoError(t, err)
+}
