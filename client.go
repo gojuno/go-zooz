@@ -38,6 +38,7 @@ type Client struct {
 	apiURL     string
 	appID      string
 	privateKey string
+	publicKey  string
 	env        env
 }
 
@@ -59,6 +60,7 @@ const (
 	headerIdempotencyKey  = "idempotency_key"
 	headerAppID           = "app_id"
 	headerPrivateKey      = "private_key"
+	headerPublicKey       = "public-key"
 	headerClientIPAddress = "x-client-ip-address"
 	headerClientUserAgent = "x-client-user-agent"
 	headerRequestID       = "X-Zooz-Request-Id"
@@ -111,6 +113,13 @@ func OptPrivateKey(privateKey string) Option {
 	}
 }
 
+// OptPublicKey returns option with given public key.
+func OptPublicKey(publicKey string) Option {
+	return func(c *Client) {
+		c.publicKey = publicKey
+	}
+}
+
 // OptEnv returns option with given environment value.
 func OptEnv(env env) Option {
 	return func(c *Client) {
@@ -147,8 +156,15 @@ func (c *Client) Call(ctx context.Context, method, path string, headers map[stri
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set(headerAPIVersion, apiVersion)
 	req.Header.Set(headerEnv, string(c.env))
-	req.Header.Set(headerAppID, c.appID)
-	req.Header.Set(headerPrivateKey, c.privateKey)
+	if c.appID != "" {
+		req.Header.Set(headerAppID, c.appID)
+	}
+	if c.privateKey != "" {
+		req.Header.Set(headerPrivateKey, c.privateKey)
+	}
+	if c.publicKey != "" {
+		req.Header.Set(headerPublicKey, c.publicKey)
+	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -189,6 +205,11 @@ func (c *Client) Call(ctx context.Context, method, path string, headers map[stri
 	}
 
 	return nil
+}
+
+// CreditCardToken creates client for work with corresponding entity.
+func (c *Client) CreditCardToken() *CreditCardTokenClient {
+	return &CreditCardTokenClient{Caller: c}
 }
 
 // Payment creates client for work with corresponding entity.
