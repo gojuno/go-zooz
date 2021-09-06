@@ -108,24 +108,6 @@ type ProviderConfiguration struct {
 	Href        string `json:"href"`
 }
 
-// The line items of the order.
-type OrderLineItem struct {
-	Name      string `json:"name"`
-	ID        string `json:"id"`
-	Quantity  int    `json:"quantity"`
-	UnitPrice int64  `json:"unit_price"`
-}
-
-// Details of the order. Note that order fields required for level 2 and 3 data, must be passed separately
-// in a Create Capture request within a level_2_3 object (fields passed in the order object only are not recognized as level 2 and 3 data fields).
-type Order struct {
-	ID                string            `json:"id"`
-	AdditionalDetails AdditionalDetails `json:"additional_details,omitempty"`
-	LineItems         []OrderLineItem   `json:"line_items"`
-	TaxAmount         int64             `json:"tax_amount"`
-	TaxPercentage     decimal.Decimal   `json:"tax_percentage"`
-}
-
 type DecodedJSON map[string]interface{}
 
 // UnmarshalJSON is called when the function json.Unmarshal is called.

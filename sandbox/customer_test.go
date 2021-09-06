@@ -350,3 +350,23 @@ func PrepareCustomer(t *testing.T, client *zooz.Client) *zooz.Customer {
 	require.NoError(t, err)
 	return customer
 }
+
+// CustomerOnlyHref is a helper to get customer object that contains only href.
+// Such object returned if no expansion requested.
+func CustomerOnlyHref(customer *zooz.Customer) *zooz.Customer {
+	return &zooz.Customer{
+		Href: zooz.ApiURL + "/customers/" + customer.ID,
+	}
+}
+
+// CustomerWithHref is a helper to add href field to customer.
+func CustomerWithHref(customer *zooz.Customer) *zooz.Customer {
+	return &zooz.Customer{
+		CustomerParams: customer.CustomerParams,
+		ID:             customer.ID,
+		Created:        customer.Created,
+		Modified:       customer.Modified,
+		PaymentMethods: customer.PaymentMethods,
+		Href:           zooz.ApiURL + "/customers/" + customer.ID,
+	}
+}

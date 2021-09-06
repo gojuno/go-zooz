@@ -17,19 +17,15 @@ type PaymentClient struct {
 type Payment struct {
 	PaymentParams
 
-	ID                      string              `json:"id"`
-	Created                 json.Number         `json:"created"`
-	Modified                json.Number         `json:"modified"`
-	Status                  PaymentStatus       `json:"status"`
-	PossibleNextActions     []PaymentNextAction `json:"possible_next_actions"`
-	StatementSoftDescriptor string              `json:"statement_soft_descriptor,omitempty"`
-	AdditionalDetails       AdditionalDetails   `json:"additional_details,omitempty"`
-	Order                   Order               `json:"order,omitempty"`
+	ID                  string              `json:"id"`
+	Created             json.Number         `json:"created"`
+	Modified            json.Number         `json:"modified"`
+	Status              PaymentStatus       `json:"status"`
+	PossibleNextActions []PaymentNextAction `json:"possible_next_actions"`
 
 	// Expansions
 	PaymentMethod    *PaymentMethod           `json:"payment_method"`
 	Customer         *Customer                `json:"customer"`
-	ShippingAddress  *Address                 `json:"billing_address"`
 	RelatedResources *PaymentRelatedResources `json:"related_resources"`
 }
 
@@ -46,6 +42,9 @@ type PaymentParams struct {
 }
 
 // PaymentOrder represents order description.
+// Note that order fields required for level 2 and 3 data, must be passed separately
+// in a Create Capture request within a level_2_3 object
+// (fields passed in the order object only are not recognized as level 2 and 3 data fields).
 type PaymentOrder struct {
 	ID                string                 `json:"id,omitempty"`
 	AdditionalDetails AdditionalDetails      `json:"additional_details,omitempty"`
