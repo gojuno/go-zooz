@@ -10,9 +10,12 @@ import (
 )
 
 func TestToken(t *testing.T) {
+	t.Parallel()
 	client := GetClient(t)
 
-	t.Run("all fields", func(t *testing.T) {
+	t.Run("new (all fields) & get", func(t *testing.T) {
+		t.Parallel()
+
 		tokenCreated, err := client.CreditCardToken().New(context.Background(), randomString(32), &zooz.CreditCardTokenParams{
 			HolderName:     "holder name",
 			ExpirationDate: "12-2051",
@@ -84,7 +87,9 @@ func TestToken(t *testing.T) {
 		})
 	})
 
-	t.Run("required fields only", func(t *testing.T) {
+	t.Run("new (required fields) & get", func(t *testing.T) {
+		t.Parallel()
+
 		tokenCreated, err := client.CreditCardToken().New(context.Background(), randomString(32), &zooz.CreditCardTokenParams{
 			HolderName:        "holder name",
 			ExpirationDate:    "", // cool, it is not required
@@ -121,7 +126,9 @@ func TestToken(t *testing.T) {
 		require.Equal(t, tokenCreated, tokenRetrieved)
 	})
 
-	t.Run("get unknown token", func(t *testing.T) {
+	t.Run("get - unknown token", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := client.CreditCardToken().Get(context.Background(), "00000000-0000-1000-8000-000000000000")
 		zoozErr := &zooz.Error{}
 		require.ErrorAs(t, err, &zoozErr)
