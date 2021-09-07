@@ -129,17 +129,58 @@ func TestToken(t *testing.T) {
 	t.Run("get - unknown token", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := client.CreditCardToken().Get(context.Background(), "00000000-0000-1000-8000-000000000000")
-		zoozErr := &zooz.Error{}
-		require.ErrorAs(t, err, &zoozErr)
-		require.Equal(t, &zooz.Error{
-			StatusCode: http.StatusNotFound,
-			RequestID:  zoozErr.RequestID, // ignore
-			APIError: zooz.APIError{
-				Category:    "api_request_error",
-				Description: "The resource was not found.",
-				MoreInfo:    "Not Found, Payment method token was not found",
-			},
-		}, zoozErr)
+		_, err := client.CreditCardToken().Get(context.Background(), UnknownUUID)
+		requireZoozError(t, err, http.StatusNotFound, zooz.APIError{
+			Category:    "api_request_error",
+			Description: "The resource was not found.",
+			MoreInfo:    "Not Found, Payment method token was not found",
+		})
 	})
+}
+
+// PrepareToken is a helper to create new token in zooz.
+func PrepareToken(t *testing.T, client *zooz.Client) (*zooz.CreditCardToken, *zooz.CreditCardTokenParams) {
+	tokenParams := &zooz.CreditCardTokenParams{
+		HolderName:     "holder name",
+		ExpirationDate: "12-51",
+		IdentityDocument: &zooz.IdentityDocument{
+			Type:   "identity type",
+			Number: "identity number",
+		},
+		CardNumber: "4012888888881881",
+		ShippingAddress: &zooz.Address{
+			Country:   "RUS",
+			State:     "token shipping state",
+			City:      "token shipping city",
+			Line1:     "token shipping line1",
+			Line2:     "token shipping line2",
+			ZipCode:   "token shipping zip code",
+			Title:     "token shipping title",
+			FirstName: "token shipping first name",
+			LastName:  "token shipping last name",
+			Phone:     "token shipping phone",
+			Email:     "token-shipping-address@email.com",
+		},
+		BillingAddress: &zooz.Address{
+			Country:   "RUS",
+			State:     "token billing state",
+			City:      "token billing city",
+			Line1:     "token billing line1",
+			Line2:     "token billing line2",
+			ZipCode:   "token billing zip code",
+			Title:     "token billing title",
+			FirstName: "token billing first name",
+			LastName:  "token billing last name",
+			Phone:     "token billing phone",
+			Email:     "token-billing-address@email.com",
+		},
+		AdditionalDetails: zooz.AdditionalDetails{
+			"token detail 1": "token value 1",
+			"token detail 2": "token value 2",
+		},
+		CreditCardCVV: "123",
+	}
+	token, err := client.CreditCardToken().New(context.Background(), randomString(32), tokenParams)
+	require.NoError(t, err)
+	return token, tokenParams
 }

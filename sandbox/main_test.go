@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 	"text/template"
@@ -22,6 +23,8 @@ const (
 	EnvPublicKey   = "PAYMENTSOS_SANDBOX_PUBLIC_KEY"
 	EnvLogRequests = "PAYMENTSOS_SANDBOX_LOG_REQUESTS"
 )
+
+const UnknownUUID = "00000000-0000-1000-8000-000000000000"
 
 func TestMain(m *testing.M) {
 	runTests := os.Getenv(EnvTest)
@@ -202,4 +205,27 @@ func must(t *testing.T, do func()) {
 	if t.Failed() {
 		t.FailNow()
 	}
+}
+
+func requireZoozError(t *testing.T, err error, statusCode int, expected zooz.APIError) {
+	zoozErr := &zooz.Error{}
+	require.ErrorAs(t, err, &zoozErr)
+	require.Equal(t, &zooz.Error{
+		StatusCode: statusCode,
+		RequestID:  zoozErr.RequestID, // ignore
+		APIError:   expected,
+	}, zoozErr)
+}
+
+func normalizeExpirationDate(date string) string {
+	xxx := regexp.MustCompile(`^(0[1-9]|1[0-2])\D(\d{2,4})$`).FindStringSubmatch(date)
+	month, year := xxx[1], xxx[2]
+	if len(year) == 2 {
+		year = "20" + year
+	}
+	return month + "/" + year
+}
+
+func last4(cardNumber string) string {
+	return cardNumber[len(cardNumber)-4:]
 }

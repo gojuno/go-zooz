@@ -31,7 +31,6 @@ type PaymentMethod struct {
 	HolderName         string            `json:"holder_name"`
 	ExpirationDate     string            `json:"expiration_date"`
 	Last4Digits        string            `json:"last_4_digits"`
-	IdentityDocument   *IdentityDocument `json:"identity_document"`
 	ShippingAddress    *Address          `json:"shipping_address"`
 	BillingAddress     *Address          `json:"billing_address"`
 	FingerPrint        string            `json:"fingerprint"`

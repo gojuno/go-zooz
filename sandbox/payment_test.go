@@ -461,18 +461,12 @@ func TestPayment(t *testing.T) {
 	t.Run("get - unknown payment", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := client.Payment().Get(context.Background(), "00000000-0000-1000-8000-000000000000")
-		zoozErr := &zooz.Error{}
-		require.ErrorAs(t, err, &zoozErr)
-		require.Equal(t, &zooz.Error{
-			StatusCode: http.StatusNotFound,
-			RequestID:  zoozErr.RequestID, // ignore
-			APIError: zooz.APIError{
-				Category:    "api_request_error",
-				Description: "The resource was not found.",
-				MoreInfo:    "Payment resource does not exists",
-			},
-		}, zoozErr)
+		_, err := client.Payment().Get(context.Background(), UnknownUUID)
+		requireZoozError(t, err, http.StatusNotFound, zooz.APIError{
+			Category:    "api_request_error",
+			Description: "The resource was not found.",
+			MoreInfo:    "Payment resource does not exists",
+		})
 	})
 }
 

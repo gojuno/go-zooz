@@ -272,20 +272,14 @@ func TestCustomer(t *testing.T) {
 		require.NoError(t, err)
 
 		_, err = client.Customer().Get(context.Background(), customer.ID)
-		zoozErr := &zooz.Error{}
-		require.ErrorAs(t, err, &zoozErr)
-		require.Equal(t, &zooz.Error{
-			StatusCode: http.StatusNotFound,
-			RequestID:  zoozErr.RequestID, // ignore
-			APIError: zooz.APIError{
-				Category:    "api_request_error",
-				Description: "The resource was not found.",
-				MoreInfo:    "Customer not found.",
-			},
-		}, zoozErr)
+		requireZoozError(t, err, http.StatusNotFound, zooz.APIError{
+			Category:    "api_request_error",
+			Description: "The resource was not found.",
+			MoreInfo:    "Customer not found.",
+		})
 	})
 
-	t.Run("delete & get-by-reference", func(t *testing.T) {
+	t.Run("delete & get-by-reference (unexpected error)", func(t *testing.T) {
 		t.Parallel()
 
 		customer := PrepareCustomer(t, client)
@@ -300,35 +294,23 @@ func TestCustomer(t *testing.T) {
 	t.Run("get - unknown customer", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := client.Customer().Get(context.Background(), "00000000-0000-1000-8000-000000000000")
-		zoozErr := &zooz.Error{}
-		require.ErrorAs(t, err, &zoozErr)
-		require.Equal(t, &zooz.Error{
-			StatusCode: http.StatusNotFound,
-			RequestID:  zoozErr.RequestID, // ignore
-			APIError: zooz.APIError{
-				Category:    "api_request_error",
-				Description: "The resource was not found.",
-				MoreInfo:    "",
-			},
-		}, zoozErr)
+		_, err := client.Customer().Get(context.Background(), UnknownUUID)
+		requireZoozError(t, err, http.StatusNotFound, zooz.APIError{
+			Category:    "api_request_error",
+			Description: "The resource was not found.",
+			MoreInfo:    "",
+		})
 	})
 
 	t.Run("get-by-reference - unknown customer", func(t *testing.T) {
 		t.Parallel()
 
 		_, err := client.Customer().GetByReference(context.Background(), randomString(32))
-		zoozErr := &zooz.Error{}
-		require.ErrorAs(t, err, &zoozErr)
-		require.Equal(t, &zooz.Error{
-			StatusCode: http.StatusNotFound,
-			RequestID:  zoozErr.RequestID, // ignore
-			APIError: zooz.APIError{
-				Category:    "api_request_error",
-				Description: "The resource was not found.",
-				MoreInfo:    "",
-			},
-		}, zoozErr)
+		requireZoozError(t, err, http.StatusNotFound, zooz.APIError{
+			Category:    "api_request_error",
+			Description: "The resource was not found.",
+			MoreInfo:    "",
+		})
 	})
 }
 
