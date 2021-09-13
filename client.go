@@ -45,7 +45,7 @@ type Client struct {
 type env string
 
 const (
-	apiVersion = "1.2.0"
+	apiVersion = "1.3.0"
 
 	// ApiURL is default base url to send requests. It May be changed with OptApiURL
 	ApiURL = "https://api.paymentsos.com"
@@ -57,9 +57,9 @@ const (
 
 	headerAPIVersion      = "api-version"
 	headerEnv             = "x-payments-os-env"
-	headerIdempotencyKey  = "idempotency_key"
-	headerAppID           = "app_id"
-	headerPrivateKey      = "private_key"
+	headerIdempotencyKey  = "idempotency-key"
+	headerAppID           = "app-id"
+	headerPrivateKey      = "private-key"
 	headerPublicKey       = "public-key"
 	headerClientIPAddress = "x-client-ip-address"
 	headerClientUserAgent = "x-client-user-agent"

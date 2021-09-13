@@ -121,7 +121,7 @@ func TestCall_WithApiResponse(t *testing.T) {
 		expectedURL:    "http://xxx.com/somepath?testk=testv",
 
 		expectedHeaders: map[string]string{
-			headerAPIVersion: "1.2.0",
+			headerAPIVersion: "1.3.0",
 			headerEnv:        "test",
 			headerAppID:      "app_id_test",
 			headerPrivateKey: "private_key_test",
