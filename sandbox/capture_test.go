@@ -262,3 +262,13 @@ func TestCapture(t *testing.T) {
 		})
 	})
 }
+
+// PrepareCapture is a helper to create new capture in zooz.
+func PrepareCapture(t *testing.T, client *zooz.Client, payment *zooz.Payment) *zooz.Capture {
+	capture, err := client.Capture().New(context.Background(), randomString(32), payment.ID, &zooz.CaptureParams{
+		ReconciliationID: randomString(32),
+		Amount:           0,
+	})
+	require.NoError(t, err)
+	return capture
+}
