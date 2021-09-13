@@ -111,6 +111,27 @@ func TestVoid(t *testing.T) {
 		require.Equal(t, voidCreated, voidRetrieved)
 	})
 
+	t.Run("idempotency", func(t *testing.T) {
+		t.Parallel()
+
+		idempotencyKey1 := randomString(32)
+		idempotencyKey2 := randomString(32) // different key -> new void
+		token, _ := PrepareToken(t, client)
+		payment := PreparePayment(t, client, 5000, nil)
+		_ = PrepareAuthorization(t, client, payment, token)
+
+		void1, err := client.Void().New(context.Background(), idempotencyKey1, payment.ID)
+		require.NoError(t, err)
+
+		void2, err := client.Void().New(context.Background(), idempotencyKey1, payment.ID)
+		require.NoError(t, err)
+		require.Equal(t, void1, void2)
+
+		void3, err := client.Void().New(context.Background(), idempotencyKey2, payment.ID) // different key
+		require.NoError(t, err)
+		require.NotEqual(t, void1.ID, void3.ID)
+	})
+
 	t.Run("new - can't create void without authorization", func(t *testing.T) {
 		t.Parallel()
 

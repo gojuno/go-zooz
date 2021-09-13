@@ -201,6 +201,33 @@ func TestRefund(t *testing.T) {
 		require.Equal(t, refundCreated, refundRetrieved)
 	})
 
+	t.Run("idempotency", func(t *testing.T) {
+		t.Parallel()
+
+		idempotencyKey1 := randomString(32)
+		idempotencyKey2 := randomString(32) // different key -> new refund
+		const amount1, amount2 = 4500, 4000 // can't change amount
+		token, _ := PrepareToken(t, client)
+		payment := PreparePayment(t, client, 5000, nil)
+		_ = PrepareAuthorization(t, client, payment, token)
+		_ = PrepareCapture(t, client, payment)
+
+		refund1, err := client.Refund().New(context.Background(), idempotencyKey1, payment.ID, &zooz.RefundParams{Amount: amount1})
+		require.NoError(t, err)
+
+		refund2, err := client.Refund().New(context.Background(), idempotencyKey1, payment.ID, &zooz.RefundParams{Amount: amount1})
+		require.NoError(t, err)
+		require.Equal(t, refund1, refund2)
+
+		refund3, err := client.Refund().New(context.Background(), idempotencyKey1, payment.ID, &zooz.RefundParams{Amount: amount2}) // can't change amount
+		require.NoError(t, err)
+		require.Equal(t, refund1, refund3)
+
+		refund4, err := client.Refund().New(context.Background(), idempotencyKey2, payment.ID, &zooz.RefundParams{Amount: amount1}) // different key
+		require.NoError(t, err)
+		require.NotEqual(t, refund1.ID, refund4.ID)
+	})
+
 	t.Run("new - can't create refund without capture", func(t *testing.T) {
 		t.Parallel()
 

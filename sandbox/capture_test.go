@@ -222,6 +222,33 @@ func TestCapture(t *testing.T) {
 		require.Equal(t, captureCreated, captureRetrieved)
 	})
 
+	t.Run("idempotency", func(t *testing.T) {
+		t.Parallel()
+
+		idempotencyKey1 := randomString(32)
+		idempotencyKey2 := randomString(32) // different key -> new capture
+		const amount1, amount2 = 4000, 4500 // can't change amount
+
+		token, _ := PrepareToken(t, client)
+		payment := PreparePayment(t, client, 5000, nil)
+		_ = PrepareAuthorization(t, client, payment, token)
+
+		capture1, err := client.Capture().New(context.Background(), idempotencyKey1, payment.ID, &zooz.CaptureParams{Amount: amount1})
+		require.NoError(t, err)
+
+		capture2, err := client.Capture().New(context.Background(), idempotencyKey1, payment.ID, &zooz.CaptureParams{Amount: amount1})
+		require.NoError(t, err)
+		require.Equal(t, capture1, capture2)
+
+		capture3, err := client.Capture().New(context.Background(), idempotencyKey1, payment.ID, &zooz.CaptureParams{Amount: amount2}) // can't change amount
+		require.NoError(t, err)
+		require.Equal(t, capture1, capture3)
+
+		capture4, err := client.Capture().New(context.Background(), idempotencyKey2, payment.ID, &zooz.CaptureParams{Amount: amount1}) // different key
+		require.NoError(t, err)
+		require.NotEqual(t, capture1.ID, capture4.ID)
+	})
+
 	t.Run("new - can't create capture without authorization", func(t *testing.T) {
 		t.Parallel()
 

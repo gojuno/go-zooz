@@ -291,6 +291,33 @@ func TestCustomer(t *testing.T) {
 		require.EqualError(t, err, "PaymentsOS returned empty array") // wow, that is unexpected
 	})
 
+	t.Run("idempotency", func(t *testing.T) {
+		t.Parallel()
+
+		idempotencyKey1 := randomString(32)
+		idempotencyKey2 := randomString(32)     // different key -> error
+		const name1, name2 = "name 1", "name 2" // can't change name
+		customerReference := randomString(32)
+
+		customer1, err := client.Customer().New(context.Background(), idempotencyKey1, &zooz.CustomerParams{CustomerReference: customerReference, FirstName: name1})
+		require.NoError(t, err)
+
+		customer2, err := client.Customer().New(context.Background(), idempotencyKey1, &zooz.CustomerParams{CustomerReference: customerReference, FirstName: name1})
+		require.NoError(t, err)
+		require.Equal(t, customer1, customer2)
+
+		customer3, err := client.Customer().New(context.Background(), idempotencyKey1, &zooz.CustomerParams{CustomerReference: customerReference, FirstName: name2}) // can't change name
+		require.NoError(t, err)
+		require.Equal(t, customer1, customer3)
+
+		_, err = client.Customer().New(context.Background(), idempotencyKey2, &zooz.CustomerParams{CustomerReference: customerReference, FirstName: name1}) // different key
+		requireZoozError(t, err, http.StatusConflict, zooz.APIError{
+			Category:    "api_request_error",
+			Description: "There was conflict with the resource current state.",
+			MoreInfo:    "customer_reference already used by customer " + customer1.ID,
+		})
+	})
+
 	t.Run("get - unknown customer", func(t *testing.T) {
 		t.Parallel()
 

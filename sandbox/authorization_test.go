@@ -656,6 +656,82 @@ func TestAuthorization(t *testing.T) {
 		})
 	})
 
+	t.Run("idempotency", func(t *testing.T) {
+		t.Parallel()
+
+		idempotencyKey1 := randomString(32)
+		idempotencyKey2 := randomString(32) // different key -> error
+		token1, _ := PrepareToken(t, client)
+		token2, _ := PrepareToken(t, client) // can't change token
+		payment := PreparePayment(t, client, 5000, nil)
+
+		authorization1, err := client.Authorization().New(
+			context.Background(),
+			idempotencyKey1,
+			payment.ID,
+			&zooz.AuthorizationParams{
+				PaymentMethod: zooz.PaymentMethodDetails{
+					Type:          "tokenized",
+					Token:         token1.Token,
+					CreditCardCvv: token1.EncryptedCVV,
+				},
+			},
+			nil,
+		)
+		require.NoError(t, err)
+
+		authorization2, err := client.Authorization().New(
+			context.Background(),
+			idempotencyKey1,
+			payment.ID,
+			&zooz.AuthorizationParams{
+				PaymentMethod: zooz.PaymentMethodDetails{
+					Type:          "tokenized",
+					Token:         token1.Token,
+					CreditCardCvv: token1.EncryptedCVV,
+				},
+			},
+			nil,
+		)
+		require.NoError(t, err)
+		require.Equal(t, authorization1, authorization2)
+
+		authorization3, err := client.Authorization().New(
+			context.Background(),
+			idempotencyKey1,
+			payment.ID,
+			&zooz.AuthorizationParams{
+				PaymentMethod: zooz.PaymentMethodDetails{
+					Type:          "tokenized",
+					Token:         token2.Token, // can't change token
+					CreditCardCvv: token2.EncryptedCVV,
+				},
+			},
+			nil,
+		)
+		require.NoError(t, err)
+		require.Equal(t, authorization1, authorization3)
+
+		_, err = client.Authorization().New(
+			context.Background(),
+			idempotencyKey2, // different key
+			payment.ID,
+			&zooz.AuthorizationParams{
+				PaymentMethod: zooz.PaymentMethodDetails{
+					Type:          "tokenized",
+					Token:         token1.Token,
+					CreditCardCvv: token1.EncryptedCVV,
+				},
+			},
+			nil,
+		)
+		requireZoozError(t, err, http.StatusConflict, zooz.APIError{
+			Category:    "api_request_error",
+			Description: "There was conflict with payment resource current state.",
+			MoreInfo:    "Please check the current state of the payment.",
+		})
+	})
+
 	t.Run("get - unknown authorization", func(t *testing.T) {
 		t.Parallel()
 

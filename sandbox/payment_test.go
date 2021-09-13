@@ -458,6 +458,58 @@ func TestPayment(t *testing.T) {
 		require.Equal(t, paymentUpdated, paymentRetrieved)
 	})
 
+	t.Run("idempotency", func(t *testing.T) {
+		t.Parallel()
+
+		idempotencyKey1 := randomString(32)
+		idempotencyKey2 := randomString(32) // different key -> new payment
+		const amount1, currency1 = 5000, "USD"
+		const amount2, currency2 = 6000, "RUB" // can change amount and currency!!!
+
+		payment1, err := client.Payment().New(context.Background(), idempotencyKey1, &zooz.PaymentParams{
+			Amount:   amount1,
+			Currency: currency1,
+		})
+		require.NoError(t, err)
+
+		payment2, err := client.Payment().New(context.Background(), idempotencyKey1, &zooz.PaymentParams{
+			Amount:   amount1,
+			Currency: currency1,
+		})
+		require.NoError(t, err)
+		must(t, func() {
+			assert.NotEqual(t, payment1.Created, payment2.Created)   // why?
+			assert.NotEqual(t, payment1.Modified, payment2.Modified) // why?
+			payment2.Created = payment1.Created                      // ignore
+			payment2.Modified = payment1.Modified                    // ignore
+			assert.Equal(t, payment1, payment2)
+		})
+
+		payment3, err := client.Payment().New(context.Background(), idempotencyKey1, &zooz.PaymentParams{
+			Amount:   amount2,   // can change amount!!!
+			Currency: currency2, // can change currency!!!
+		})
+		require.NoError(t, err)
+		must(t, func() {
+			assert.NotEqual(t, payment1.Created, payment3.Created)   // why?
+			assert.NotEqual(t, payment1.Modified, payment3.Modified) // why?
+			assert.Equal(t, int64(amount2), payment3.Amount)         // why?
+			assert.Equal(t, currency2, payment3.Currency)            // why?
+			payment3.Modified = payment1.Modified                    // ignore
+			payment3.Created = payment1.Created                      // ignore
+			payment3.Amount = int64(amount1)                         // ignore
+			payment3.Currency = currency1                            // ignore
+			assert.Equal(t, payment1, payment3)
+		})
+
+		payment4, err := client.Payment().New(context.Background(), idempotencyKey2, &zooz.PaymentParams{ // different key
+			Amount:   amount1,
+			Currency: currency1,
+		})
+		require.NoError(t, err)
+		require.NotEqual(t, payment1.ID, payment4.ID)
+	})
+
 	t.Run("get - unknown payment", func(t *testing.T) {
 		t.Parallel()
 

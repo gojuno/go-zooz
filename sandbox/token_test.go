@@ -126,6 +126,42 @@ func TestToken(t *testing.T) {
 		require.Equal(t, tokenCreated, tokenRetrieved)
 	})
 
+	t.Run("idempotency works only for the same card", func(t *testing.T) {
+		t.Parallel()
+
+		idempotencyKey1 := randomString(32)
+		idempotencyKey2 := randomString(32) // different key -> new token
+		const name1, card1 = "name1", "4012888888881881"
+		const name2, card2 = "name2", "6011601160116611" // different card -> new token
+
+		token1, err := client.CreditCardToken().New(context.Background(), idempotencyKey1, &zooz.CreditCardTokenParams{
+			HolderName: name1,
+			CardNumber: card1,
+		})
+		require.NoError(t, err)
+
+		token2, err := client.CreditCardToken().New(context.Background(), idempotencyKey1, &zooz.CreditCardTokenParams{
+			HolderName: name1,
+			CardNumber: card1,
+		})
+		require.NoError(t, err)
+		require.Equal(t, token1, token2)
+
+		token3, err := client.CreditCardToken().New(context.Background(), idempotencyKey1, &zooz.CreditCardTokenParams{
+			HolderName: name2,
+			CardNumber: card2, // different card
+		})
+		require.NoError(t, err)
+		require.NotEqual(t, token1.Token, token3.Token)
+
+		token4, err := client.CreditCardToken().New(context.Background(), idempotencyKey2, &zooz.CreditCardTokenParams{ // different key
+			HolderName: name1,
+			CardNumber: card1,
+		})
+		require.NoError(t, err)
+		require.NotEqual(t, token1.Token, token4.Token)
+	})
+
 	t.Run("get - unknown token", func(t *testing.T) {
 		t.Parallel()
 

@@ -92,6 +92,31 @@ func TestPaymentMethod(t *testing.T) {
 		require.Empty(t, paymentMethodsRetrieved)
 	})
 
+	t.Run("idempotency key means nothing, token is idempotency key", func(t *testing.T) {
+		t.Parallel()
+
+		idempotencyKey1 := randomString(32)
+		idempotencyKey2 := randomString(32) // different key -> same payment method
+		token1, _ := PrepareToken(t, client)
+		token2, _ := PrepareToken(t, client) // different token -> new payment method
+		customer := PrepareCustomer(t, client)
+
+		paymentMethod1, err := client.PaymentMethod().New(context.Background(), idempotencyKey1, customer.ID, token1.Token)
+		require.NoError(t, err)
+
+		paymentMethod2, err := client.PaymentMethod().New(context.Background(), idempotencyKey1, customer.ID, token1.Token)
+		require.NoError(t, err)
+		require.Equal(t, paymentMethod1, paymentMethod2)
+
+		paymentMethod3, err := client.PaymentMethod().New(context.Background(), idempotencyKey2, customer.ID, token1.Token) // different key
+		require.NoError(t, err)
+		require.Equal(t, paymentMethod1, paymentMethod3)
+
+		paymentMethod4, err := client.PaymentMethod().New(context.Background(), idempotencyKey1, customer.ID, token2.Token) // different token
+		require.NoError(t, err)
+		require.NotEqual(t, paymentMethod1.Token, paymentMethod4.Token)
+	})
+
 	t.Run("get - unknown token", func(t *testing.T) {
 		t.Parallel()
 
