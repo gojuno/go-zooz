@@ -330,7 +330,7 @@ func TestPayment(t *testing.T) {
 
 		customer1 := PrepareCustomer(t, client)
 		customer2 := PrepareCustomer(t, client)
-		payment := PreparePayment(t, client, 123, customer1.ID)
+		payment := PreparePayment(t, client, 123, customer1)
 
 		paymentUpdated, err := client.Payment().Update(context.Background(), payment.ID, &zooz.PaymentParams{
 			Amount:     6000,
@@ -471,7 +471,11 @@ func TestPayment(t *testing.T) {
 }
 
 // PreparePayment is a helper to create new payment in zooz.
-func PreparePayment(t *testing.T, client *zooz.Client, amount int64, customerID string) *zooz.Payment {
+func PreparePayment(t *testing.T, client *zooz.Client, amount int64, customer *zooz.Customer) *zooz.Payment {
+	customerID := ""
+	if customer != nil {
+		customerID = customer.ID
+	}
 	payment, err := client.Payment().New(context.Background(), randomString(32), &zooz.PaymentParams{
 		Amount:     amount,
 		Currency:   "USD",

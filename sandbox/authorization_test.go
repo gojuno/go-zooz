@@ -18,7 +18,7 @@ func TestAuthorization(t *testing.T) {
 		t.Parallel()
 
 		token, tokenParams := PrepareToken(t, client)
-		payment := PreparePayment(t, client, 5000, "")
+		payment := PreparePayment(t, client, 5000, nil)
 		reconciliationID := randomString(32)
 
 		authorizationCreated, err := client.Authorization().New(
@@ -165,7 +165,7 @@ func TestAuthorization(t *testing.T) {
 
 		token, tokenParams := PrepareToken(t, client)
 		customer := PrepareCustomer(t, client)
-		payment := PreparePayment(t, client, 5000, customer.ID)
+		payment := PreparePayment(t, client, 5000, customer)
 		reconciliationID := randomString(32)
 
 		authorizationCreated, err := client.Authorization().New(
@@ -314,7 +314,7 @@ func TestAuthorization(t *testing.T) {
 		customer := PrepareCustomer(t, client)
 		paymentMethod, err := client.PaymentMethod().New(context.Background(), randomString(32), customer.ID, token.Token)
 		require.NoError(t, err)
-		payment := PreparePayment(t, client, 5000, customer.ID)
+		payment := PreparePayment(t, client, 5000, customer)
 		reconciliationID := randomString(32)
 
 		authorizationCreated, err := client.Authorization().New(
@@ -460,7 +460,7 @@ func TestAuthorization(t *testing.T) {
 		t.Parallel()
 
 		token, _ := PrepareToken(t, client)
-		payment := PreparePayment(t, client, 5000, "")
+		payment := PreparePayment(t, client, 5000, nil)
 
 		authorizationCreated, err := client.Authorization().New(
 			context.Background(),
@@ -531,7 +531,7 @@ func TestAuthorization(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		payment := PreparePayment(t, client, 5000, "")
+		payment := PreparePayment(t, client, 5000, nil)
 		reconciliationID := randomString(32)
 
 		authorizationCreated, err := client.Authorization().New(
@@ -659,7 +659,7 @@ func TestAuthorization(t *testing.T) {
 	t.Run("get - unknown authorization", func(t *testing.T) {
 		t.Parallel()
 
-		payment := PreparePayment(t, client, 123, "")
+		payment := PreparePayment(t, client, 123, nil)
 
 		_, err := client.Authorization().Get(context.Background(), payment.ID, UnknownUUID)
 		requireZoozError(t, err, http.StatusNotFound, zooz.APIError{
@@ -679,4 +679,45 @@ func TestAuthorization(t *testing.T) {
 			MoreInfo:    "Payment resource does not exists",
 		})
 	})
+}
+
+// PrepareAuthorization is a helper to create new authorization in zooz.
+func PrepareAuthorization(t *testing.T, client *zooz.Client, payment *zooz.Payment, token *zooz.CreditCardToken) *zooz.Authorization {
+	authorization, err := client.Authorization().New(
+		context.Background(),
+		randomString(32),
+		payment.ID,
+		&zooz.AuthorizationParams{
+			PaymentMethod: zooz.PaymentMethodDetails{
+				Type:          "tokenized",
+				Token:         token.Token,
+				CreditCardCvv: token.EncryptedCVV,
+			},
+			MerchantSiteURL:        "abc",
+			ReconciliationID:       randomString(32),
+			ThreeDSecureAttributes: nil,
+			Installments:           nil,
+			ProviderSpecificData: map[string]interface{}{
+				"provider data 1": "aaa",
+				"provider data 2": 123,
+				"provider data 3": map[string]interface{}{
+					"provider data 4": "bbb",
+				},
+			},
+			AdditionalDetails: zooz.AdditionalDetails{
+				"auth detail 1": "value 1",
+				"auth detail 2": "value 2",
+			},
+			COFTransactionIndicators: &zooz.COFTransactionIndicators{
+				CardEntryMode:           "consent_transaction",
+				COFConsentTransactionID: "",
+			},
+		},
+		&zooz.ClientInfo{
+			IPAddress: "95.173.136.70",
+			UserAgent: "my-user-agent",
+		},
+	)
+	require.NoError(t, err)
+	return authorization
 }
