@@ -77,6 +77,7 @@ func TestNew(t *testing.T) {
 		OptEnv(EnvLive),
 		OptPrivateKey("private_key"),
 		OptHTTPClient(&httpClientMock{}),
+		OptApiURL("url"),
 	)
 
 	if c == nil {
@@ -93,6 +94,9 @@ func TestNew(t *testing.T) {
 	}
 	if _, ok := c.httpClient.(*httpClientMock); !ok {
 		t.Errorf("Invalid httpClient: %T", c.httpClient)
+	}
+	if c.apiURL != "url" {
+		t.Errorf("Invalid apiURL: %s", c.apiURL)
 	}
 }
 
@@ -142,6 +146,7 @@ func TestCall_WithApiResponse(t *testing.T) {
 		appID:      "app_id_test",
 		privateKey: "private_key_test",
 		env:        EnvTest,
+		apiURL:     ApiURL,
 	}
 
 	err := client.Call(
