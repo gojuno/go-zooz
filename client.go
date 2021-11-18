@@ -37,14 +37,16 @@ type Client struct {
 	appID      string
 	privateKey string
 	env        env
+	apiURL     string
 }
 
 type env string
 
 const (
 	apiVersion = "1.3.0"
-	apiURL     = "https://api.paymentsos.com/"
 
+	// ApiURL is a default url value for paymentsos
+	ApiURL = "https://api.paymentsos.com/"
 	// EnvTest is a value for test environment header
 	EnvTest env = "test"
 	// EnvLive is a value for live environment header
@@ -65,6 +67,7 @@ func New(options ...Option) *Client {
 	c := &Client{
 		httpClient: http.DefaultClient,
 		env:        EnvTest,
+		apiURL:     ApiURL,
 	}
 
 	for _, option := range options {
@@ -102,6 +105,13 @@ func OptEnv(env env) Option {
 	}
 }
 
+// OptApiURL returns option with given api url value.
+func OptApiURL(apiURL string) Option {
+	return func(c *Client) {
+		c.apiURL = apiURL
+	}
+}
+
 // Call does HTTP request with given params using set HTTP client. Response will be decoded into respObj.
 // Error may be returned if something went wrong. If API return error as response, then Call returns error of type zooz.Error.
 func (c *Client) Call(ctx context.Context, method, path string, headers map[string]string, reqObj interface{}, respObj interface{}) (callErr error) {
@@ -115,7 +125,7 @@ func (c *Client) Call(ctx context.Context, method, path string, headers map[stri
 		reqBody = bytes.NewBuffer(reqBodyBytes)
 	}
 
-	req, err := http.NewRequest(method, apiURL+path, reqBody)
+	req, err := http.NewRequest(method, c.apiURL+path, reqBody)
 	if err != nil {
 		return errors.Wrap(err, "failed to create HTTP request")
 	}
