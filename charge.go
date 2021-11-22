@@ -27,6 +27,7 @@ type Charge struct {
 	OriginatingPurchaseCountry string                  `json:"originating_purchase_country"`
 	IPAddress                  string                  `json:"ip_address"`
 	Redirection                *Redirection            `json:"redirection"`
+	AdditionalDetails          map[string]interface{}  `json:"additional_details"`
 }
 
 // ChargeParams is a set of params for creating entity.
@@ -37,6 +38,7 @@ type ChargeParams struct {
 	ThreeDSecureAttributes   *ThreeDSecureAttributes   `json:"three_d_secure_attributes,omitempty"`
 	Installments             *Installments             `json:"installments,omitempty"`
 	ProviderSpecificData     map[string]interface{}    `json:"provider_specific_data,omitempty"`
+	AdditionalDetails        map[string]interface{}    `json:"additional_details,omitempty"`
 	CofTransactionIndicators *CofTransactionIndicators `json:"cof_transaction_indicators,omitempty"`
 }
 
