@@ -14,20 +14,21 @@ type ChargeClient struct {
 
 // Charge is a model of entity.
 type Charge struct {
-	ID                         string                  `json:"id"`
-	Result                     Result                  `json:"result"`
-	Amount                     int64                   `json:"amount"`
-	Created                    json.Number             `json:"created"`
-	ReconciliationID           string                  `json:"reconciliation_id"`
-	PaymentMethod              PaymentMethodHref       `json:"payment_method"`
-	ThreeDSecureAttributes     *ThreeDSecureAttributes `json:"three_d_secure_attributes"`
-	Installments               *Installments           `json:"installments"`
-	ProviderData               ProviderData            `json:"provider_data"`
-	ProviderSpecificData       map[string]interface{}  `json:"provider_specific_data"`
-	OriginatingPurchaseCountry string                  `json:"originating_purchase_country"`
-	IPAddress                  string                  `json:"ip_address"`
-	Redirection                *Redirection            `json:"redirection"`
-	AdditionalDetails          map[string]interface{}  `json:"additional_details"`
+	ID                         string                    `json:"id"`
+	Result                     Result                    `json:"result"`
+	Amount                     int64                     `json:"amount"`
+	Created                    json.Number               `json:"created"`
+	ReconciliationID           string                    `json:"reconciliation_id"`
+	PaymentMethod              PaymentMethodHref         `json:"payment_method"`
+	ThreeDSecureAttributes     *ThreeDSecureAttributes   `json:"three_d_secure_attributes"`
+	Installments               *Installments             `json:"installments"`
+	ProviderData               ProviderData              `json:"provider_data"`
+	ProviderSpecificData       map[string]interface{}    `json:"provider_specific_data"`
+	OriginatingPurchaseCountry string                    `json:"originating_purchase_country"`
+	IPAddress                  string                    `json:"ip_address"`
+	Redirection                *Redirection              `json:"redirection"`
+	AdditionalDetails          map[string]interface{}    `json:"additional_details"`
+	CofTransactionIndicators   *CofTransactionIndicators `json:"cof_transaction_indicators"`
 }
 
 // ChargeParams is a set of params for creating entity.
