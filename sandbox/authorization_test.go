@@ -3,11 +3,12 @@ package sandbox
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+	"testing"
+
 	"github.com/gtforge/go-zooz"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
 )
 
 func TestAuthorization(t *testing.T) {
@@ -135,13 +136,7 @@ func TestAuthorization(t *testing.T) {
 					"auth detail 1": "value 1",
 					"auth detail 2": "value 2",
 				},
-				DecisionEngineExecution: zooz.DecisionEngineExecution{
-					ID:            "",
-					Created:       "",
-					FlowID:        "",
-					Status:        "",
-					PolicyResults: nil,
-				},
+				DecisionEngineExecution: authorizationCreated.DecisionEngineExecution, // ignore, since it depends on the provider list
 			}, authorizationCreated)
 		})
 
@@ -155,6 +150,9 @@ func TestAuthorization(t *testing.T) {
 			// empty on New, nil on Get
 			assert.Nil(t, authorizationRetrieved.ProviderSpecificData)
 			authorizationRetrieved.ProviderSpecificData = zooz.DecodedJSON{}
+
+			// decision engine exectuion is not returned when retreving auth by id
+			authorizationCreated.DecisionEngineExecution = zooz.DecisionEngineExecution{}
 
 			assert.Equal(t, authorizationCreated, authorizationRetrieved)
 		})
@@ -282,13 +280,7 @@ func TestAuthorization(t *testing.T) {
 					"auth detail 1": "value 1",
 					"auth detail 2": "value 2",
 				},
-				DecisionEngineExecution: zooz.DecisionEngineExecution{
-					ID:            "",
-					Created:       "",
-					FlowID:        "",
-					Status:        "",
-					PolicyResults: nil,
-				},
+				DecisionEngineExecution: authorizationCreated.DecisionEngineExecution, // ignore
 			}, authorizationCreated)
 		})
 
@@ -302,6 +294,9 @@ func TestAuthorization(t *testing.T) {
 			// empty on New, nil on Get
 			assert.Nil(t, authorizationRetrieved.ProviderSpecificData)
 			authorizationRetrieved.ProviderSpecificData = zooz.DecodedJSON{}
+
+			// decision engine exectuion is not returned when retreving auth by id
+			authorizationCreated.DecisionEngineExecution = zooz.DecisionEngineExecution{}
 
 			assert.Equal(t, authorizationCreated, authorizationRetrieved)
 		})
@@ -431,13 +426,7 @@ func TestAuthorization(t *testing.T) {
 					"auth detail 1": "value 1",
 					"auth detail 2": "value 2",
 				},
-				DecisionEngineExecution: zooz.DecisionEngineExecution{
-					ID:            "",
-					Created:       "",
-					FlowID:        "",
-					Status:        "",
-					PolicyResults: nil,
-				},
+				DecisionEngineExecution: authorizationCreated.DecisionEngineExecution,
 			}, authorizationCreated)
 		})
 
@@ -451,6 +440,9 @@ func TestAuthorization(t *testing.T) {
 			// empty on New, nil on Get
 			assert.Nil(t, authorizationRetrieved.ProviderSpecificData)
 			authorizationRetrieved.ProviderSpecificData = zooz.DecodedJSON{}
+
+			// decision engine exectuion is not returned when retreving auth by id
+			authorizationCreated.DecisionEngineExecution = zooz.DecisionEngineExecution{}
 
 			assert.Equal(t, authorizationCreated, authorizationRetrieved)
 		})
@@ -508,13 +500,7 @@ func TestAuthorization(t *testing.T) {
 				IPAddress:                  "",
 				Redirection:                nil,
 				AdditionalDetails:          nil,
-				DecisionEngineExecution: zooz.DecisionEngineExecution{
-					ID:            "",
-					Created:       "",
-					FlowID:        "",
-					Status:        "",
-					PolicyResults: nil,
-				},
+				DecisionEngineExecution:    authorizationCreated.DecisionEngineExecution,
 			}, authorizationCreated)
 		})
 	})
@@ -635,13 +621,7 @@ func TestAuthorization(t *testing.T) {
 					"auth detail 1": "value 1",
 					"auth detail 2": "value 2",
 				},
-				DecisionEngineExecution: zooz.DecisionEngineExecution{
-					ID:            "",
-					Created:       "",
-					FlowID:        "",
-					Status:        "",
-					PolicyResults: nil,
-				},
+				DecisionEngineExecution: authorizationCreated.DecisionEngineExecution,
 			}, authorizationCreated)
 		})
 
@@ -651,6 +631,9 @@ func TestAuthorization(t *testing.T) {
 			// empty on New, nil on Get
 			assert.Nil(t, authorizationRetrieved.ProviderSpecificData)
 			authorizationRetrieved.ProviderSpecificData = zooz.DecodedJSON{}
+
+			// decision engine exectuion is not returned when retreving auth by id
+			authorizationCreated.DecisionEngineExecution = zooz.DecisionEngineExecution{}
 
 			assert.Equal(t, authorizationCreated, authorizationRetrieved)
 		})
