@@ -49,6 +49,11 @@ type COFTransactionIndicators struct {
 	COFConsentTransactionID string `json:"cof_consent_transaction_id"`
 }
 
+type ContinueAuthenticationParams struct {
+	ReconciliationID       string                  `json:"reconciliation_id"`
+	ThreeDSecureAttributes *ThreeDSecureAttributes `json:"three_d_secure_attributes"`
+}
+
 // New creates new Authorization entity.
 func (c *AuthorizationClient) New(ctx context.Context, idempotencyKey string, paymentID string, params *AuthorizationParams, clientInfo *ClientInfo) (*Authorization, error) {
 	authorization := &Authorization{}
@@ -82,6 +87,27 @@ func (c *AuthorizationClient) GetList(ctx context.Context, paymentID string) ([]
 		return nil, err
 	}
 	return authorizations, nil
+}
+
+// ContinueAuthentication continues the authentication flow for the specified payment ID and authorization ID.
+// Returns nil if everything is ok, and error when continue flow failed
+func (c *AuthorizationClient) ContinueAuthentication(ctx context.Context, idempotencyKey, paymentID, authorizationID string, params *ContinueAuthenticationParams, clientInfo *ClientInfo) error {
+	headers := map[string]string{headerIdempotencyKey: idempotencyKey}
+
+	if clientInfo != nil {
+		headers[headerClientIPAddress] = clientInfo.IPAddress
+		headers[headerClientUserAgent] = clientInfo.UserAgent
+	}
+
+	if err := c.Caller.Call(ctx, "POST", c.authenticationPath(paymentID, authorizationID), headers, params, nil); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *AuthorizationClient) authenticationPath(paymentID, authorizationID string) string {
+	return fmt.Sprintf("%s/%s/authorizations/%s/authentication-flows", paymentsPath, paymentID, authorizationID)
 }
 
 func (c *AuthorizationClient) authorizationsPath(paymentID string) string {

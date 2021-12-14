@@ -8,6 +8,13 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type AuthenticationDataCollectionValue string
+
+const (
+	AuthenticationDataCollectionCompleted    AuthenticationDataCollectionValue = "Y"
+	AuthenticationDataCollectionNotCompleted AuthenticationDataCollectionValue = "N"
+)
+
 // Maxium level of citiation
 const (
 	maxCitationLevel = 1000
@@ -47,10 +54,15 @@ type AdditionalDetails map[string]string
 
 // ThreeDSecureAttributes is a set of attributes for 3D-Secure.
 type ThreeDSecureAttributes struct {
-	Encoding string `json:"encoding"`
-	XID      string `json:"xid"`
-	CAVV     string `json:"cavv"`
-	EciFlag  string `json:"eci_flag"`
+	Internal ThreeDSecureAttributesInternal `json:"internal"`
+}
+
+type ThreeDSecureAttributesInternal struct {
+	Encoding                   string                            `json:"encoding,omitempty"`
+	XID                        string                            `json:"xid,omitempty"`
+	CAVV                       string                            `json:"cavv,omitempty"`
+	EciFlag                    string                            `json:"eci_flag,omitempty"`
+	DataCollectionCompletedInd AuthenticationDataCollectionValue `json:"data_collection_completed_ind,omitempty"`
 }
 
 // Installments is a set of options of installments.
@@ -73,6 +85,22 @@ type ProviderData struct {
 	Documents             []ProviderDocument `json:"documents"`
 	AdditionalInformation map[string]string  `json:"additional_information"`
 	NetworkTransactionID  string             `json:"network_transaction_id"`
+	ThreeDSecureResult    ThreeDSecureResult `json:"three_d_secure_result"`
+}
+
+type ThreeDSecureResult struct {
+	Internal struct {
+		ServerTransactionID  string `json:"three_d_secure_server_transaction_id"`
+		XID                  string `json:"xid"`
+		AuthenticationStatus string `json:"three_d_secure_authentication_status"`
+		Version              string `json:"three_d_secure_version"`
+		DsXID                string `json:"ds_xid"`
+		ECIFlag              string `json:"eci_flag"`
+		CAVV                 string `json:"cavv"`
+	} `json:"internal"`
+	ScaExemptions struct {
+		WhitelistStatus string `json:"whitelist_status"`
+	} `json:"sca_exemptions"`
 }
 
 // ProviderDocument represents provider document.
