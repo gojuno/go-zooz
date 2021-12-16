@@ -2,49 +2,10 @@ package zooz
 
 import (
 	"context"
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
-
-func TestSendRequest(t *testing.T) {
-	z := New(
-		OptAppID("com.gojuno.gett_stage"),
-		OptPrivateKey("fab6f75d-c706-4259-834b-c78e53e299bc"),
-		OptEnv(EnvTest),
-	)
-
-	paymentParams := &PaymentParams{
-		Amount:   100,
-		Currency: "RUB",
-	}
-
-	paym, err := z.Payment().New(context.Background(), "idempotency_id", paymentParams)
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	auth, err := z.Authorization().New(context.Background(),
-		"idempotency_key",
-		paym.ID,
-		&AuthorizationParams{
-			PaymentMethod: PaymentMethodDetails{
-				Type:  "tokenized",
-				Token: "bcd4e9b1-4577-43d3-9280-3c54c5356941",
-			},
-		},
-		&ClientInfo{
-			IPAddress: "ip",
-			UserAgent: "ua",
-		})
-	if err != nil {
-		log.Println(err)
-	}
-
-	log.Println(auth)
-}
 
 func TestAuthorizationClient_New(t *testing.T) {
 	cli := &httpClientMock{
