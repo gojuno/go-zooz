@@ -3,6 +3,7 @@ package zooz
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -90,8 +91,8 @@ func (c *AuthorizationClient) GetList(ctx context.Context, paymentID string) ([]
 }
 
 // ContinueAuthentication continues the authentication flow for the specified payment ID and authorization ID.
-// Returns nil if everything is ok, and error when continue flow failed
-func (c *AuthorizationClient) ContinueAuthentication(ctx context.Context, idempotencyKey, paymentID, authorizationID string, params *ContinueAuthenticationParams, clientInfo *ClientInfo) error {
+// Returns auth struct if everything is ok, and error when continue flow failed
+func (c *AuthorizationClient) ContinueAuthentication(ctx context.Context, idempotencyKey, paymentID, authorizationID string, params *ContinueAuthenticationParams, clientInfo *ClientInfo) (*Authorization, error) {
 	headers := map[string]string{headerIdempotencyKey: idempotencyKey}
 
 	if clientInfo != nil {
@@ -99,11 +100,23 @@ func (c *AuthorizationClient) ContinueAuthentication(ctx context.Context, idempo
 		headers[headerClientUserAgent] = clientInfo.UserAgent
 	}
 
-	if err := c.Caller.Call(ctx, "POST", c.authenticationPath(paymentID, authorizationID), headers, params, nil); err != nil {
-		return err
+	response := struct {
+		RelatedResources struct {
+			Authorizations []*Authorization `json:"authorizations"`
+		} `json:"related_resources"`
+	}{}
+
+	if err := c.Caller.Call(ctx, "POST", c.authenticationPath(paymentID, authorizationID), headers, params, &response); err != nil {
+		return nil, err
 	}
 
-	return nil
+	for _, authorization := range response.RelatedResources.Authorizations {
+		if authorization.ID == authorizationID {
+			return authorization, nil
+		}
+	}
+
+	return nil, errors.New("cannot find authorization in response")
 }
 
 func (c *AuthorizationClient) authenticationPath(paymentID, authorizationID string) string {

@@ -135,11 +135,23 @@ func TestAuthorizationClient_ContinueAuthentication(t *testing.T) {
 				}
 			}
 		}`,
+		responseBody: `{
+			"related_resources": {
+				"authorizations": [
+					{
+						"id": "authorization_id"
+					},
+					{
+						"id": "not_valid"
+					}
+				]
+			}
+		}`,
 	}
 
 	c := &AuthorizationClient{Caller: New(OptHTTPClient(cli))}
 
-	err := c.ContinueAuthentication(
+	auth, err := c.ContinueAuthentication(
 		context.Background(),
 		"idempotency_key",
 		"payment_id",
@@ -156,5 +168,6 @@ func TestAuthorizationClient_ContinueAuthentication(t *testing.T) {
 		},
 	)
 
+	require.Equal(t, "authorization_id", auth.ID)
 	require.NoError(t, err)
 }
