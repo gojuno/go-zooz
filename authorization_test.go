@@ -116,3 +116,60 @@ func TestAuthorizationClient_GetList(t *testing.T) {
 		},
 	}, authorizations)
 }
+
+func TestAuthorizationClient_ContinueAuthentication(t *testing.T) {
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "POST",
+		expectedURL:    "/payments/payment_id/authorizations/authorization_id/authentication-flows",
+		expectedHeaders: map[string]string{
+			headerIdempotencyKey:  "idempotency_key",
+			headerClientIPAddress: "ip",
+			headerClientUserAgent: "ua",
+		},
+		expectedBodyJSON: `{
+			"reconciliation_id": "reconciliation_id",
+			"three_d_secure_attributes" : {
+				"internal": {
+					"data_collection_completed_ind": "Y"
+				},
+				"external": {
+				},
+				"sca_exemptions": {
+				}
+			}
+		}`,
+		responseBody: `{
+			"related_resources": {
+				"authorizations": [
+					{
+						"id": "authorization_id"
+					},
+					{
+						"id": "not_valid"
+					}
+				]
+			}
+		}`,
+	}
+
+	c := &AuthorizationClient{Caller: New(OptHTTPClient(cli))}
+
+	auth, err := c.ContinueAuthentication(
+		context.Background(),
+		"idempotency_key",
+		ContinueAuthenticationParams{
+			PaymentID:                  "payment_id",
+			AuthorizationID:            "authorization_id",
+			ReconciliationID:           "reconciliation_id",
+			DataCollectionCompletedInd: AuthenticationDataCollectionCompleted,
+		},
+		&ClientInfo{
+			IPAddress: "ip",
+			UserAgent: "ua",
+		},
+	)
+
+	require.Equal(t, "authorization_id", auth.ID)
+	require.NoError(t, err)
+}

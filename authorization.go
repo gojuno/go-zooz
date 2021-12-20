@@ -3,6 +3,7 @@ package zooz
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -49,6 +50,18 @@ type COFTransactionIndicators struct {
 	COFConsentTransactionID string `json:"cof_consent_transaction_id"`
 }
 
+type continueAuthenticationBody struct {
+	ReconciliationID       string                  `json:"reconciliation_id"`
+	ThreeDSecureAttributes *ThreeDSecureAttributes `json:"three_d_secure_attributes"`
+}
+
+type ContinueAuthenticationParams struct {
+	PaymentID                  string
+	AuthorizationID            string
+	ReconciliationID           string
+	DataCollectionCompletedInd AuthenticationDataCollectionValue
+}
+
 // New creates new Authorization entity.
 func (c *AuthorizationClient) New(ctx context.Context, idempotencyKey string, paymentID string, params *AuthorizationParams, clientInfo *ClientInfo) (*Authorization, error) {
 	authorization := &Authorization{}
@@ -82,6 +95,46 @@ func (c *AuthorizationClient) GetList(ctx context.Context, paymentID string) ([]
 		return nil, err
 	}
 	return authorizations, nil
+}
+
+// ContinueAuthentication continues the authentication flow for the specified payment ID and authorization ID.
+// Returns auth struct if everything is ok, and error when continue flow failed
+func (c *AuthorizationClient) ContinueAuthentication(ctx context.Context, idempotencyKey string, params ContinueAuthenticationParams, clientInfo *ClientInfo) (*Authorization, error) {
+	headers := map[string]string{headerIdempotencyKey: idempotencyKey}
+
+	if clientInfo != nil {
+		headers[headerClientIPAddress] = clientInfo.IPAddress
+		headers[headerClientUserAgent] = clientInfo.UserAgent
+	}
+
+	body := continueAuthenticationBody{
+		ReconciliationID: params.ReconciliationID,
+		ThreeDSecureAttributes: &ThreeDSecureAttributes{Internal: ThreeDSecureAttributesInternal{
+			DataCollectionCompletedInd: string(params.DataCollectionCompletedInd),
+		}},
+	}
+
+	response := struct {
+		RelatedResources struct {
+			Authorizations []*Authorization `json:"authorizations"`
+		} `json:"related_resources"`
+	}{}
+
+	if err := c.Caller.Call(ctx, "POST", c.authenticationPath(params.PaymentID, params.AuthorizationID), headers, body, &response); err != nil {
+		return nil, err
+	}
+
+	for _, authorization := range response.RelatedResources.Authorizations {
+		if authorization.ID == params.AuthorizationID {
+			return authorization, nil
+		}
+	}
+
+	return nil, errors.New("cannot find authorization in response")
+}
+
+func (c *AuthorizationClient) authenticationPath(paymentID, authorizationID string) string {
+	return fmt.Sprintf("%s/%s/authorizations/%s/authentication-flows", paymentsPath, paymentID, authorizationID)
 }
 
 func (c *AuthorizationClient) authorizationsPath(paymentID string) string {
