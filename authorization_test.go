@@ -132,6 +132,10 @@ func TestAuthorizationClient_ContinueAuthentication(t *testing.T) {
 			"three_d_secure_attributes" : {
 				"internal": {
 					"data_collection_completed_ind": "Y"
+				},
+				"external": {
+				},
+				"sca_exemptions": {
 				}
 			}
 		}`,
@@ -154,13 +158,11 @@ func TestAuthorizationClient_ContinueAuthentication(t *testing.T) {
 	auth, err := c.ContinueAuthentication(
 		context.Background(),
 		"idempotency_key",
-		"payment_id",
-		"authorization_id",
-		&ContinueAuthenticationParams{
-			ReconciliationID: "reconciliation_id",
-			ThreeDSecureAttributes: &ThreeDSecureAttributes{ThreeDSecureAttributesInternal{
-				DataCollectionCompletedInd: AuthenticationDataCollectionCompleted,
-			}},
+		ContinueAuthenticationParams{
+			PaymentID:                  "payment_id",
+			AuthorizationID:            "authorization_id",
+			ReconciliationID:           "reconciliation_id",
+			DataCollectionCompletedInd: AuthenticationDataCollectionCompleted,
 		},
 		&ClientInfo{
 			IPAddress: "ip",

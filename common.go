@@ -54,15 +54,91 @@ type AdditionalDetails map[string]string
 
 // ThreeDSecureAttributes is a set of attributes for 3D-Secure.
 type ThreeDSecureAttributes struct {
-	Internal ThreeDSecureAttributesInternal `json:"internal"`
+	External      ThreeDSecureAttributesExternal `json:"external"`
+	Internal      ThreeDSecureAttributesInternal `json:"internal"`
+	ScaExemptions ThreeDSecureScaExemptions      `json:"sca_exemptions"`
 }
 
+type ThreeDSecureAttributesExternal struct {
+	ThreeDSecureVersion              string `json:"three_d_secure_version,omitempty"`
+	ThreeDSecureAuthenticationStatus string `json:"three_d_secure_authentication_status,omitempty"`
+	XID                              string `json:"xid,omitempty"`
+	DsXID                            string `json:"ds_xid,omitempty"`
+	Encoding                         string `json:"encoding,omitempty"`
+	CAVV                             string `json:"cavv,omitempty"`
+	ECIFlag                          string `json:"eci_flag,omitempty"`
+	AuthenticationID                 string `json:"authentication_id,omitempty"`
+}
+
+//nolint:maligned // third-party api struct
 type ThreeDSecureAttributesInternal struct {
-	Encoding                   string                            `json:"encoding,omitempty"`
-	XID                        string                            `json:"xid,omitempty"`
-	CAVV                       string                            `json:"cavv,omitempty"`
-	EciFlag                    string                            `json:"eci_flag,omitempty"`
-	DataCollectionCompletedInd AuthenticationDataCollectionValue `json:"data_collection_completed_ind,omitempty"`
+	ThreeDSecureServerTransactionID  string `json:"three_d_secure_server_transaction_id,omitempty"`
+	DataCollectionCompletedInd       string `json:"data_collection_completed_ind,omitempty"`
+	DeviceChannel                    string `json:"device_channel,omitempty"`
+	WorkPhone                        string `json:"work_phone,omitempty"`
+	MobilePhone                      string `json:"mobile_phone,omitempty"`
+	HomePhone                        string `json:"home_phone,omitempty"`
+	MobilePhoneCountry               string `json:"mobile_phone_country,omitempty"`
+	HomePhoneCountry                 string `json:"home_phone_country,omitempty"`
+	WorkPhoneCountry                 string `json:"work_phone_country,omitempty"`
+	AddressMatch                     bool   `json:"address_match,omitempty"`
+	ProductCode                      string `json:"product_code,omitempty"`
+	ShippingMethodIndicator          string `json:"shipping_method_indicator,omitempty"`
+	DeliveryTimeFrame                string `json:"delivery_time_frame,omitempty"`
+	ReorderIndicator                 string `json:"reorder_indicator,omitempty"`
+	PreOrderIndicator                string `json:"pre_order_indicator,omitempty"`
+	PreOrderDate                     string `json:"pre_order_date,omitempty"`
+	AccountAgeIndicator              string `json:"account_age_indicator,omitempty"`
+	AccountCreateDate                string `json:"account_create_date,omitempty"`
+	AccountChangeIndicator           string `json:"account_change_indicator,omitempty"`
+	AccountChangeDate                string `json:"account_change_date,omitempty"`
+	AccountPwdChangeIndicator        string `json:"account_pwd_change_indicator,omitempty"`
+	AccountPwdChangeDate             string `json:"account_pwd_change_date,omitempty"`
+	AccountAdditionalInformation     string `json:"account_additional_information,omitempty"`
+	ShippingAddressUsageIndicator    string `json:"shipping_address_usage_indicator,omitempty"`
+	ShippingAddressUsageDate         string `json:"shipping_address_usage_date,omitempty"`
+	TransactionCountDay              string `json:"transaction_count_day,omitempty"`
+	TransactionCountYear             string `json:"transaction_count_year,omitempty"`
+	AddCardAttemptsDay               string `json:"add_card_attempts_day,omitempty"`
+	AccountPurchasesSixMonths        string `json:"account_purchases_six_months,omitempty"`
+	FraudActivity                    string `json:"fraud_activity,omitempty"`
+	ShippingNameIndicator            string `json:"shipping_name_indicator,omitempty"`
+	PaymentAccountIndicator          string `json:"payment_account_indicator,omitempty"`
+	PaymentAccountAge                string `json:"payment_account_age,omitempty"`
+	RequestorAuthenticationMethod    string `json:"requestor_authentication_method,omitempty"`
+	RequestorAuthenticationTimestamp string `json:"requestor_authentication_timestamp,omitempty"`
+	PriorAuthenticationData          string `json:"prior_authentication_data,omitempty"`
+	PriorAuthenticationMethod        string `json:"prior_authentication_method,omitempty"`
+	PriorAuthenticationTimestamp     string `json:"prior_authentication_timestamp,omitempty"`
+	PriorAuthenticationRef           string `json:"prior_authentication_ref,omitempty"`
+	PurchaseDateTime                 string `json:"purchase_date_time,omitempty"`
+	RecurringEndDate                 string `json:"recurring_end_date,omitempty"`
+	RecurringFrequency               string `json:"recurring_frequency,omitempty"`
+	BrowserHeader                    string `json:"browser_header,omitempty"`
+	BrowserJavaEnabled               bool   `json:"browser_java_enabled,omitempty"`
+	BrowserLanguage                  string `json:"browser_language,omitempty"`
+	BrowserColorDepth                string `json:"browser_color_depth,omitempty"`
+	BrowserScreenHeight              string `json:"browser_screen_height,omitempty"`
+	BrowserScreenWidth               string `json:"browser_screen_width,omitempty"`
+	BrowserTimeZone                  string `json:"browser_time_zone,omitempty"`
+	ChallengeIndicator               string `json:"challenge_indicator,omitempty"`
+	ChallengeWindowSize              string `json:"challenge_window_size,omitempty"`
+	RequestorAuthenticationData      string `json:"requestor_authentication_data,omitempty"`
+	SdkAppID                         string `json:"sdk_app_id,omitempty"`
+	SdkEncryptedData                 string `json:"sdk_encrypted_data,omitempty"`
+	SdkMaxTimeout                    string `json:"sdk_max_timeout,omitempty"`
+	SdkReferenceNumber               string `json:"sdk_reference_number,omitempty"`
+	SdkTransactionID                 string `json:"sdk_transaction_id,omitempty"`
+	SdkInterface                     string `json:"sdk_interface,omitempty"`
+	SdkUIType                        string `json:"sdk_ui_type,omitempty"`
+	SdkEphemeralPublicKey            string `json:"sdk_ephemeral_public_key,omitempty"`
+}
+
+type ThreeDSecureScaExemptions struct {
+	ExemptionAction       bool   `json:"exemption_action,omitempty"`
+	RequestExemptionStage string `json:"request_exemption_stage,omitempty"`
+	ExemptionReason       string `json:"exemption_reason,omitempty"`
+	TraScore              string `json:"tra_score,omitempty"`
 }
 
 // Installments is a set of options of installments.

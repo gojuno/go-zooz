@@ -50,9 +50,16 @@ type COFTransactionIndicators struct {
 	COFConsentTransactionID string `json:"cof_consent_transaction_id"`
 }
 
-type ContinueAuthenticationParams struct {
+type continueAuthenticationBody struct {
 	ReconciliationID       string                  `json:"reconciliation_id"`
 	ThreeDSecureAttributes *ThreeDSecureAttributes `json:"three_d_secure_attributes"`
+}
+
+type ContinueAuthenticationParams struct {
+	PaymentID                  string
+	AuthorizationID            string
+	ReconciliationID           string
+	DataCollectionCompletedInd AuthenticationDataCollectionValue
 }
 
 // New creates new Authorization entity.
@@ -92,12 +99,19 @@ func (c *AuthorizationClient) GetList(ctx context.Context, paymentID string) ([]
 
 // ContinueAuthentication continues the authentication flow for the specified payment ID and authorization ID.
 // Returns auth struct if everything is ok, and error when continue flow failed
-func (c *AuthorizationClient) ContinueAuthentication(ctx context.Context, idempotencyKey, paymentID, authorizationID string, params *ContinueAuthenticationParams, clientInfo *ClientInfo) (*Authorization, error) {
+func (c *AuthorizationClient) ContinueAuthentication(ctx context.Context, idempotencyKey string, params ContinueAuthenticationParams, clientInfo *ClientInfo) (*Authorization, error) {
 	headers := map[string]string{headerIdempotencyKey: idempotencyKey}
 
 	if clientInfo != nil {
 		headers[headerClientIPAddress] = clientInfo.IPAddress
 		headers[headerClientUserAgent] = clientInfo.UserAgent
+	}
+
+	body := continueAuthenticationBody{
+		ReconciliationID: params.ReconciliationID,
+		ThreeDSecureAttributes: &ThreeDSecureAttributes{Internal: ThreeDSecureAttributesInternal{
+			DataCollectionCompletedInd: string(params.DataCollectionCompletedInd),
+		}},
 	}
 
 	response := struct {
@@ -106,12 +120,12 @@ func (c *AuthorizationClient) ContinueAuthentication(ctx context.Context, idempo
 		} `json:"related_resources"`
 	}{}
 
-	if err := c.Caller.Call(ctx, "POST", c.authenticationPath(paymentID, authorizationID), headers, params, &response); err != nil {
+	if err := c.Caller.Call(ctx, "POST", c.authenticationPath(params.PaymentID, params.AuthorizationID), headers, body, &response); err != nil {
 		return nil, err
 	}
 
 	for _, authorization := range response.RelatedResources.Authorizations {
-		if authorization.ID == authorizationID {
+		if authorization.ID == params.AuthorizationID {
 			return authorization, nil
 		}
 	}
