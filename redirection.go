@@ -18,6 +18,7 @@ type Redirection struct {
 	Created         json.Number `json:"created"`
 	MerchantSiteURL string      `json:"merchant_site_url"`
 	URL             string      `json:"url"`
+	OperationType   string      `json:"operation_type"`
 }
 
 // Get creates new Redirection entity.
