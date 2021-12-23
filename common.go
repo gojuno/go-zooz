@@ -54,9 +54,9 @@ type AdditionalDetails map[string]string
 
 // ThreeDSecureAttributes is a set of attributes for 3D-Secure.
 type ThreeDSecureAttributes struct {
-	External      ThreeDSecureAttributesExternal `json:"external"`
-	Internal      ThreeDSecureAttributesInternal `json:"internal"`
-	ScaExemptions ThreeDSecureScaExemptions      `json:"sca_exemptions"`
+	External      *ThreeDSecureAttributesExternal `json:"external,omitempty"`
+	Internal      *ThreeDSecureAttributesInternal `json:"internal,omitempty"`
+	ScaExemptions *ThreeDSecureScaExemptions      `json:"sca_exemptions,omitempty"`
 }
 
 type ThreeDSecureAttributesExternal struct {

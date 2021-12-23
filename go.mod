@@ -10,3 +10,4 @@ require (
 
 retract v1.3.1 // Contains errors with deserialization
 retract v1.4.0 // Mistake in get customer by reference response format
+retract v1.8.0 // three_d_secure_attributes.internal / .external / .sca_exemptions should be omited if empty

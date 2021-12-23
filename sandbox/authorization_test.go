@@ -505,6 +505,67 @@ func TestAuthorization(t *testing.T) {
 		})
 	})
 
+	t.Run("new (successful, internal 3ds, required fields)", func(t *testing.T) {
+		t.Parallel()
+
+		token, _ := PrepareToken(t, client)
+		payment := PreparePayment(t, client, 5000, nil)
+
+		authorizationCreated, err := client.Authorization().New(
+			context.Background(),
+			randomString(32),
+			payment.ID,
+			&zooz.AuthorizationParams{
+				PaymentMethod: zooz.PaymentMethodDetails{
+					Type:  "tokenized",
+					Token: token.Token,
+				},
+				ThreeDSecureAttributes: &zooz.ThreeDSecureAttributes{
+					Internal: &zooz.ThreeDSecureAttributesInternal{
+						DeviceChannel: "02", // @TODO: actually more fields are required
+					},
+				},
+				MerchantSiteURL:          "",
+				ReconciliationID:         "",
+				Installments:             nil,
+				ProviderSpecificData:     nil,
+				AdditionalDetails:        nil,
+				COFTransactionIndicators: nil,
+			},
+			nil,
+		)
+		require.NoError(t, err)
+		must(t, func() {
+			assert.NotEmpty(t, authorizationCreated.ID)
+			assert.NotEmpty(t, authorizationCreated.Created)
+			assert.NotEmpty(t, authorizationCreated.PaymentMethod.FingerPrint)
+			assert.NotEmpty(t, authorizationCreated.ProviderConfiguration)
+			assert.Equal(t, &zooz.Authorization{
+				ID: authorizationCreated.ID, // ignore
+				Result: zooz.Result{
+					Status:      "Succeed",
+					Category:    "",
+					SubCategory: "",
+					Description: "",
+				},
+				Amount:                     5000,
+				Created:                    authorizationCreated.Created, // ignore
+				ReconciliationID:           "",
+				PaymentMethod:              authorizationCreated.PaymentMethod, // ignore
+				ThreeDSecureAttributes:     nil,                                // @TODO: Why nil Looks like sandbox doesn't properly support 3ds
+				Installments:               nil,
+				ProviderData:               authorizationCreated.ProviderData, // ignore
+				ProviderSpecificData:       zooz.DecodedJSON{},
+				ProviderConfiguration:      authorizationCreated.ProviderConfiguration, // ignore
+				OriginatingPurchaseCountry: "",                                         // empty because no IP
+				IPAddress:                  "",
+				Redirection:                nil,
+				AdditionalDetails:          nil,
+				DecisionEngineExecution:    authorizationCreated.DecisionEngineExecution,
+			}, authorizationCreated)
+		})
+	})
+
 	t.Run("new (failed, all fields, no 3ds, no customer) & get", func(t *testing.T) {
 		t.Parallel()
 

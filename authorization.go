@@ -109,7 +109,7 @@ func (c *AuthorizationClient) ContinueAuthentication(ctx context.Context, idempo
 
 	body := continueAuthenticationBody{
 		ReconciliationID: params.ReconciliationID,
-		ThreeDSecureAttributes: &ThreeDSecureAttributes{Internal: ThreeDSecureAttributesInternal{
+		ThreeDSecureAttributes: &ThreeDSecureAttributes{Internal: &ThreeDSecureAttributesInternal{
 			DataCollectionCompletedInd: string(params.DataCollectionCompletedInd),
 		}},
 	}

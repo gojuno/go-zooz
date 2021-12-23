@@ -60,6 +60,72 @@ func TestAuthorizationClient_New(t *testing.T) {
 	}, authorization)
 }
 
+func TestAuthorizationClient_New_3DS_Internal(t *testing.T) {
+	cli := &httpClientMock{
+		t:              t,
+		expectedMethod: "POST",
+		expectedURL:    "/payments/payment_id/authorizations",
+		expectedHeaders: map[string]string{
+			headerIdempotencyKey:  "idempotency_key",
+			headerClientIPAddress: "ip",
+			headerClientUserAgent: "ua",
+		},
+		expectedBodyJSON: `{
+			"payment_method": {
+				"type": "tokenized",
+				"token": "token"
+			},
+			"three_d_secure_attributes": {
+				"internal": {
+					"device_channel": "02",
+					"browser_header": "text/html",
+					"challenge_window_size": "05"
+				}
+			}
+		}`,
+		responseBody: `{
+			"id": "id",
+			"payment_method": {
+				"type": "tokenized",
+				"token": "token"
+			}
+		}`,
+	}
+
+	c := &AuthorizationClient{Caller: New(OptHTTPClient(cli))}
+
+	authorization, err := c.New(
+		context.Background(),
+		"idempotency_key",
+		"payment_id",
+		&AuthorizationParams{
+			PaymentMethod: PaymentMethodDetails{
+				Type:  "tokenized",
+				Token: "token",
+			},
+			ThreeDSecureAttributes: &ThreeDSecureAttributes{
+				Internal: &ThreeDSecureAttributesInternal{
+					DeviceChannel:       "02",
+					BrowserHeader:       "text/html",
+					ChallengeWindowSize: "05",
+				}},
+		},
+		&ClientInfo{
+			IPAddress: "ip",
+			UserAgent: "ua",
+		},
+	)
+
+	require.NoError(t, err)
+	require.Equal(t, &Authorization{
+		ID: "id",
+		PaymentMethod: PaymentMethod{
+			Type:  "tokenized",
+			Token: "token",
+		},
+	}, authorization)
+}
+
 func TestAuthorizationClient_Get(t *testing.T) {
 	cli := &httpClientMock{
 		t:              t,
@@ -132,10 +198,6 @@ func TestAuthorizationClient_ContinueAuthentication(t *testing.T) {
 			"three_d_secure_attributes" : {
 				"internal": {
 					"data_collection_completed_ind": "Y"
-				},
-				"external": {
-				},
-				"sca_exemptions": {
 				}
 			}
 		}`,
