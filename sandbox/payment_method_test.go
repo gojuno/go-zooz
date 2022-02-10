@@ -33,7 +33,7 @@ func TestPaymentMethod(t *testing.T) {
 				Created:            json.Number(token.Created),
 				Customer:           CustomerOnlyHref(customer).Href,
 				AdditionalDetails:  tokenParams.AdditionalDetails,
-				BinNumber:          json.Number(token.BinNumber),
+				BinNumber:          token.BinNumber,
 				Vendor:             token.Vendor,
 				Issuer:             token.Issuer,
 				CardType:           token.CardType,

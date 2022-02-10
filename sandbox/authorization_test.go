@@ -87,7 +87,7 @@ func TestAuthorization(t *testing.T) {
 					Created:            json.Number(token.Created),
 					Customer:           "",
 					AdditionalDetails:  nil, // why empty? is not empty on get
-					BinNumber:          json.Number(token.BinNumber),
+					BinNumber:          token.BinNumber,
 					Vendor:             token.Vendor,
 					Issuer:             token.Issuer,
 					CardType:           token.CardType,
@@ -231,7 +231,7 @@ func TestAuthorization(t *testing.T) {
 					Created:            json.Number(token.Created),
 					Customer:           "",
 					AdditionalDetails:  nil, // why empty? is not empty on get
-					BinNumber:          json.Number(token.BinNumber),
+					BinNumber:          token.BinNumber,
 					Vendor:             token.Vendor,
 					Issuer:             token.Issuer,
 					CardType:           token.CardType,
@@ -645,7 +645,7 @@ func TestAuthorization(t *testing.T) {
 					Created:            json.Number(token.Created),
 					Customer:           "",
 					AdditionalDetails:  nil,
-					BinNumber:          json.Number(token.BinNumber),
+					BinNumber:          token.BinNumber,
 					Vendor:             token.Vendor,
 					Issuer:             token.Issuer,
 					CardType:           token.CardType,
