@@ -7,6 +7,13 @@ import (
 	"fmt"
 )
 
+type AuthType string
+
+const (
+	AuthTypePre   AuthType = "pre_authorization"
+	AuthTypeFinal AuthType = "final_authorization"
+)
+
 // AuthorizationClient is a client for work with Authorization entity.
 // https://developers.paymentsos.com/docs/api#/reference/authorizations
 type AuthorizationClient struct {
@@ -43,6 +50,7 @@ type AuthorizationParams struct {
 	ProviderSpecificData     map[string]interface{}    `json:"provider_specific_data,omitempty"`
 	AdditionalDetails        map[string]string         `json:"additional_details,omitempty"`
 	COFTransactionIndicators *COFTransactionIndicators `json:"cof_transaction_indicators,omitempty"`
+	AuthType                 AuthType                  `json:"authorization_type,omitempty"`
 }
 
 type COFTransactionIndicators struct {
