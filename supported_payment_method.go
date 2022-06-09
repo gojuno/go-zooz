@@ -28,6 +28,7 @@ type PaymentMethodData struct {
 	Country     string                  `json:"country"`
 	LogoURL     string                  `json:"logo_url"`
 	Amounts     []Amount                `json:"amounts"`
+	BankCode    string                  `json:"bank_code"`
 }
 
 type SourceType string
