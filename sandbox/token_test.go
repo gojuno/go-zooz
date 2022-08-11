@@ -2,11 +2,12 @@ package sandbox
 
 import (
 	"context"
+	"net/http"
+	"testing"
+
 	"github.com/gtforge/go-zooz"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
 )
 
 func TestToken(t *testing.T) {
@@ -71,6 +72,8 @@ func TestToken(t *testing.T) {
 				CardType:           "CREDIT",
 				Level:              "CORPORATE",
 				CountryCode:        "USA",
+				HolderName:         "holder name",
+				ExpirationDate:     tokenCreated.ExpirationDate,
 				Token:              tokenCreated.Token,
 				Created:            tokenCreated.Created,
 				Type:               "tokenized",
@@ -92,7 +95,7 @@ func TestToken(t *testing.T) {
 
 		tokenCreated, err := client.CreditCardToken().New(context.Background(), randomString(32), &zooz.CreditCardTokenParams{
 			HolderName:        "holder name",
-			ExpirationDate:    "", // cool, it is not required
+			ExpirationDate:    "", // looks like it is not required
 			IdentityDocument:  nil,
 			CardNumber:        "4012888888881881",
 			ShippingAddress:   nil,
@@ -114,6 +117,8 @@ func TestToken(t *testing.T) {
 				CardType:           "CREDIT",
 				Level:              "INFINITE",
 				CountryCode:        "UKR",
+				HolderName:         "holder name",
+				ExpirationDate:     "",
 				Token:              tokenCreated.Token,
 				Created:            tokenCreated.Created,
 				Type:               "tokenized",

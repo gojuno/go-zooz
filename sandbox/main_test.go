@@ -217,13 +217,13 @@ func requireZoozError(t *testing.T, err error, statusCode int, expected zooz.API
 	}, zoozErr)
 }
 
-func normalizeExpirationDate(date string) string {
+func normalizeExpirationDate(date string) zooz.ExpirationDate {
 	xxx := regexp.MustCompile(`^(0[1-9]|1[0-2])\D(\d{2,4})$`).FindStringSubmatch(date)
 	month, year := xxx[1], xxx[2]
 	if len(year) == 2 {
 		year = "20" + year
 	}
-	return month + "/" + year
+	return zooz.ExpirationDate(month + "/" + year)
 }
 
 func last4(cardNumber string) string {

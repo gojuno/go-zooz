@@ -49,8 +49,14 @@ type CreditCardToken struct {
 	// Level - The level of benefits or services available with the card.
 	Level string `json:"level"`
 
-	// CountryCode - The 3-digit country code defined in ISO 3166-1 alpha-3 format, identifying the country in which the card was issued.
+	// CountryCode - The 3-letter country code defined in ISO 3166-1 alpha-3 format, identifying the country in which the card was issued.
 	CountryCode string `json:"country_code"`
+
+	// HolderName - Name of the credit card holder.
+	HolderName string `json:"holder_name"`
+
+	// Credit card expiration date.
+	ExpirationDate ExpirationDate `json:"expiration_date"`
 
 	// Token - Depending on the `token_type`, the token represents one of the following:
 	// a customer's credit card number, the card cvv code or a billing agreement.

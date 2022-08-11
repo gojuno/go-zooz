@@ -2,8 +2,9 @@ package zooz
 
 import (
 	"context"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreditCardTokenClient_New(t *testing.T) {
@@ -68,7 +69,9 @@ func TestCreditCardTokenClient_New(t *testing.T) {
 			"card_type": "CREDIT",
 			"issuer": "AMERICAN EXPRESS US (CARS)",
 			"level": "CORPORATE",
-			"country_code": "USA"
+			"country_code": "USA",
+			"holder_name": "John Doe",
+			"expiration_date": "12/2051"
 		}`,
 	}
 
@@ -132,6 +135,8 @@ func TestCreditCardTokenClient_New(t *testing.T) {
 		CardType:           "CREDIT",
 		Level:              "CORPORATE",
 		CountryCode:        "USA",
+		HolderName:         "John Doe",
+		ExpirationDate:     "12/2051",
 		Token:              "78565e54-9439-4cbf-91e0-fc7fc33703b6",
 		Created:            "1630440556137",
 		Type:               "tokenized",
@@ -156,7 +161,9 @@ func TestCreditCardTokenClient_Get(t *testing.T) {
 			"card_type": "CREDIT",
 			"issuer": "AMERICAN EXPRESS US (CARS)",
 			"level": "CORPORATE",
-			"country_code": "USA"
+			"country_code": "USA",
+			"holder_name": "John Doe",
+			"expiration_date": "12/2051"
 		}`,
 	}
 
@@ -178,6 +185,8 @@ func TestCreditCardTokenClient_Get(t *testing.T) {
 		CardType:           "CREDIT",
 		Level:              "CORPORATE",
 		CountryCode:        "USA",
+		HolderName:         "John Doe",
+		ExpirationDate:     "12/2051",
 		Token:              "78565e54-9439-4cbf-91e0-fc7fc33703b6",
 		Created:            "1630440556137",
 		Type:               "tokenized",
