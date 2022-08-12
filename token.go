@@ -58,6 +58,9 @@ type CreditCardToken struct {
 	// Credit card expiration date.
 	ExpirationDate ExpirationDate `json:"expiration_date"`
 
+	// Masked credit card number (last four digits) of the card associated with the PaymentsOS token.
+	Last4Digits string `json:"last_4_digits"`
+
 	// Token - Depending on the `token_type`, the token represents one of the following:
 	// a customer's credit card number, the card cvv code or a billing agreement.
 	Token string `json:"token"`

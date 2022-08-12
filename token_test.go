@@ -71,7 +71,8 @@ func TestCreditCardTokenClient_New(t *testing.T) {
 			"level": "CORPORATE",
 			"country_code": "USA",
 			"holder_name": "John Doe",
-			"expiration_date": "12/2051"
+			"expiration_date": "12/2051",
+			"last_4_digits": "0005"
 		}`,
 	}
 
@@ -137,6 +138,7 @@ func TestCreditCardTokenClient_New(t *testing.T) {
 		CountryCode:        "USA",
 		HolderName:         "John Doe",
 		ExpirationDate:     "12/2051",
+		Last4Digits:        "0005",
 		Token:              "78565e54-9439-4cbf-91e0-fc7fc33703b6",
 		Created:            "1630440556137",
 		Type:               "tokenized",
@@ -163,7 +165,8 @@ func TestCreditCardTokenClient_Get(t *testing.T) {
 			"level": "CORPORATE",
 			"country_code": "USA",
 			"holder_name": "John Doe",
-			"expiration_date": "12/2051"
+			"expiration_date": "12/2051",
+			"last_4_digits": "0005"
 		}`,
 	}
 
@@ -187,6 +190,7 @@ func TestCreditCardTokenClient_Get(t *testing.T) {
 		CountryCode:        "USA",
 		HolderName:         "John Doe",
 		ExpirationDate:     "12/2051",
+		Last4Digits:        "0005",
 		Token:              "78565e54-9439-4cbf-91e0-fc7fc33703b6",
 		Created:            "1630440556137",
 		Type:               "tokenized",
