@@ -21,7 +21,7 @@ go get github.com/pkg/errors
 ## How to use
 
 To init client you will need `private_key` and `app_id` which you can get from your Zooz account profile.
-```
+```go
 import "github.com/gojuno/go-zooz"
 ...
 // Init client
@@ -56,7 +56,7 @@ deleteCustomerErr := client.Customer().Delete(context.Background(), customer.ID)
 ## Custom HTTP client
 
 By default Zooz client uses `http.DefaultClient`. You can set custom HTTP client using `zooz.OptHTTPClient` option:
-```
+```go
 httpClient := &http.Client{
 	Timeout: time.Minute,
 }
@@ -74,7 +74,7 @@ You can use any HTTP client, implementing `zooz.HTTPClient` interface with metho
 Zooz supports test and live environment. Environment is defined by `x-payments-os-env` request header.
 
 By default, client sends `test` value. You can redefine this value to `live` using `zooz.OptEnv(zooz.EnvLive)` option.
-```
+```go
 client := zooz.New(
 	zooz.OptAppID("com.yourhost.go_client"),
 	zooz.OptPrivateKey("a630518c-22da-4eaa-bb39-502ad7832030"),
