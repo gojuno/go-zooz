@@ -58,7 +58,7 @@ type PaymentOrderLineItem struct {
 	ID        string `json:"id,omitempty"`
 	Name      string `json:"name,omitempty"`
 	Quantity  int64  `json:"quantity,omitempty"`
-	UnitPrice int64  `json:"unit_price,omitempty"`
+	UnitPrice int64  `json:"unit_price"`
 }
 
 // PaymentNextAction represents action which may be performed on Payment entity.
